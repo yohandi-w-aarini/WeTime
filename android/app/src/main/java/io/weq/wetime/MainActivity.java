@@ -1,4 +1,4 @@
-package com.invertase.rnfirebasestarter;
+package io.weq.wetime;
 
 import com.facebook.react.ReactActivity;
 

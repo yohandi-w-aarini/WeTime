@@ -3,9 +3,9 @@ const readline = require('readline');
 const replace = require('replace-in-file');
 
 const BASE_DIRECTORY = './';
-const DEFAULT_COMPANY_NAME = 'invertase';
-const DEFAULT_PACKAGE_NAME = 'com.invertase.rnfirebasestarter';
-const DEFAULT_PROJECT_NAME = 'RNFirebaseStarter';
+const DEFAULT_COMPANY_NAME = 'WeQ';
+const DEFAULT_PACKAGE_NAME = 'io.weq.wetime';
+const DEFAULT_PROJECT_NAME = 'WeTime';
 const VALID_CHARACTERS = /^[a-zA-Z\s]+$/;
 
 const rl = readline.createInterface({
@@ -143,7 +143,7 @@ const run = async () => {
     projectName = projectName.replace(/ /g, '');
     companyName = companyName.replace(/ /g, '').toLowerCase();
     
-    const packageName = `com.${companyName}.${projectName.toLowerCase()}`;
+    const packageName = `io.${companyName}.${projectName.toLowerCase()}`;
     // Close the input
     rl.close();
     

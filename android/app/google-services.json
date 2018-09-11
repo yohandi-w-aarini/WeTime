@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "321296739396",
+    "firebase_url": "https://wetime-10a2d.firebaseio.com",
+    "project_id": "wetime-10a2d",
+    "storage_bucket": "wetime-10a2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321296739396:android:0de26d9da33453a9",
+        "android_client_info": {
+          "package_name": "io.weq.wetime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "321296739396-thbj42fks5a6pappdb90n0sm5frgp9gk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqAzztWpj9zgw__L-R4rol6htAV89nDv0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
