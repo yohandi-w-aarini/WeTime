@@ -6,6 +6,7 @@ import { StackNavigator, TabNavigator } from 'react-navigation';
 import Home from 'WeTime/src/screens/Home';
 import HomeAuth from 'WeTime/src/screens/HomeAuth';
 import SignIn from 'WeTime/src/screens/SignIn';
+import CreateGroup from 'WeTime/src/screens/CreateGroup';
 
 
 export const AuthStack = StackNavigator({
@@ -23,6 +24,9 @@ export const PublicStack = StackNavigator({
   },
   SignIn: {
     screen: SignIn,
+  },
+  CreateGroup: {
+    screen: CreateGroup,
   }
 });
 

@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
-import { colors } from '../../config/styles';
+import { colors } from 'WeTime/src/config/styles';
 
 const window = Dimensions.get('window');
 export default StyleSheet.create({

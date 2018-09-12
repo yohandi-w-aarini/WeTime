@@ -27,7 +27,7 @@ const Home = (props) => {
         Home
       </Text>
       <Button text="Join a Team" onPress={() => props.navigation.navigate('SignIn', {navigation:props.navigation})} />
-      <Button text="Create a Team"/>
+      <Button text="Create a Team" onPress={() => props.navigation.navigate('CreateGroup', {navigation:props.navigation})}/>
     </View>
   );
 };

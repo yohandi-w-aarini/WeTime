@@ -35,8 +35,19 @@ class App extends React.Component {
       }
       NetInfo.addEventListener(
         'connectionChange',
-        this.handleConnectivityChange
+        this.handleConnectivityChange.bind(this)
       );
+    }
+  }
+
+  componentWillReceiveProps(nextProps){
+    if(nextProps.status && nextProps.status.connected === false){
+      if(!this.startTime){
+        this.startTime = new Date();
+      }
+      if(!this.timer){
+        this.timer = setInterval(this.tick.bind(this), 50);
+      }
     }
   }
 
@@ -48,16 +59,8 @@ class App extends React.Component {
 
     NetInfo.removeEventListener(
       'connectionChange',
-      this.handleConnectivityChange
+      this.handleConnectivityChange.bind(this)
     );
-  }
-
-  handleConnectivityChange(connectionInfo) {
-    if(connectionInfo.type == "none"){
-      this.setInternetState(false);
-    }else{
-      this.setInternetState(true);
-    }
   }
 
   setInternetState(state){
@@ -72,6 +75,14 @@ class App extends React.Component {
       this.timer = setInterval(this.tick.bind(this), 50);
     }else{
       this.clearTimer();
+    }
+  }
+
+  handleConnectivityChange(connectionInfo) {
+    if(connectionInfo.type == "none"){
+      this.setInternetState(false);
+    }else{
+      this.setInternetState(true);
     }
   }
 
