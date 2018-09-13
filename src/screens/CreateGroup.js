@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { StyleSheet, Dimensions, Text, View, Image } from 'react-native';
+import { StyleSheet, Dimensions, Text, View, Image, PermissionsAndroid } from 'react-native';
 import Meteor from 'react-native-meteor';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
+import Contacts from 'react-native-contacts';
 
+import {name as appName} from 'WeTime/app.json';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
@@ -41,6 +43,9 @@ class CreateGroup extends Component {
       password: '',
       confirmPassword: '',
       confirmPasswordVisible: false,
+      contactPermission:undefined,
+      contactList:[],
+      contactLoading:false,
       error: null,
     };
   }
@@ -52,6 +57,10 @@ class CreateGroup extends Component {
 
   componentWillMount() {
     this.mounted = true;
+  }
+
+  async componentDidMount(){
+    await this.getContactSafe();
   }
 
   componentWillUnmount() {
@@ -83,6 +92,74 @@ class CreateGroup extends Component {
     }
 
     return valid;
+  }
+
+  getContact(){
+    this.setState({ contactLoading:true });
+    Contacts.getAll((err, contacts) => {
+      if (err) throw err;
+  
+      // contacts returned
+      console.log(contacts)
+      this.setState({ 
+        contactList:contacts,
+        contactLoading:false });
+    })
+  }
+
+  async getContactSafe(){
+    const permission = await this.checkContactPermission();
+
+    if(permission){
+      this.setState({ contactPermission:true });
+      this.getContact();
+    }else if(permission === false){
+      await this.requestContactPermission();
+    }else{
+      console.log("error with permission check");
+      this.setState({ contactPermission:false })
+    }
+  }
+
+  async requestContactPermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+        {
+          'title': `${appName} Contact Permission`,
+          'message': `${appName} needs access to your contact list ` +
+                     'to help you invite people easily',
+          'buttonPositive': "OK"
+        }
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        this.setState({ contactPermission:true });
+        this.getContact();
+      } else {
+        console.log("contact list permission denied");
+        this.setState({ contactPermission:false });
+      }
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+
+  async checkContactPermission() {
+    try {
+      const granted = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You are allowed to get contact list");
+        return true;
+      } else {
+        console.log("you are not allowed to get contact list")
+        return false;
+      }
+    } catch (err) {
+      console.warn(err)
+      return undefined;
+    }
   }
 
   render() {

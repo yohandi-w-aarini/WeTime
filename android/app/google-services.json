@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "321296739396-psl4ls29k1a1irq4hprmh4912fb25la8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.weq.wetime",
+            "certificate_hash": "f063c57a2c423a6fb6d1acd161b1b202ad49d1f7"
+          }
+        },
+        {
           "client_id": "321296739396-thbj42fks5a6pappdb90n0sm5frgp9gk.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "321296739396-thbj42fks5a6pappdb90n0sm5frgp9gk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
