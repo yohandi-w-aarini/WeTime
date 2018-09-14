@@ -159,6 +159,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-vector-icons')
   compile project(':react-native-contacts')
   implementation(project(':react-native-firebase')) {
     transitive = false
@@ -185,3 +186,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

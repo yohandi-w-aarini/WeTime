@@ -28,4 +28,6 @@ target 'RNFirebaseStarter' do
 
   pod 'react-native-contacts', :path => '../node_modules/react-native-contacts'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
 end

@@ -9,6 +9,7 @@ import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
+import ContactList from './ContactList';
 
 const window = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -100,7 +101,6 @@ class CreateGroup extends Component {
       if (err) throw err;
   
       // contacts returned
-      console.log(contacts)
       this.setState({ 
         contactList:contacts,
         contactLoading:false });
@@ -136,7 +136,6 @@ class CreateGroup extends Component {
         this.setState({ contactPermission:true });
         this.getContact();
       } else {
-        console.log("contact list permission denied");
         this.setState({ contactPermission:false });
       }
     } catch (err) {
@@ -150,10 +149,8 @@ class CreateGroup extends Component {
         PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
       )
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log("You are allowed to get contact list");
         return true;
       } else {
-        console.log("you are not allowed to get contact list")
         return false;
       }
     } catch (err) {
@@ -163,39 +160,8 @@ class CreateGroup extends Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <InputWrapper>
-          <GenericTextInput
-            placeholder="email address"
-            onChangeText={(email) => this.setState({ email })}
-          />
-          <GenericTextInput
-            placeholder="password"
-            onChangeText={(password) => this.setState({ password })}
-            secureTextEntry
-            borderTop
-          />
-          {this.state.confirmPasswordVisible ?
-            <GenericTextInput
-              placeholder="confirm password"
-              onChangeText={(confirmPassword) => this.setState({ confirmPassword })}
-              secureTextEntry
-              borderTop
-            />
-          : null}
-        </InputWrapper>
-
-        <View style={styles.error}>
-          <Text style={styles.errorText}>{this.state.error}</Text>
-        </View>
-
-        <View style={styles.buttons}>
-          <Button text="Create Group" />
-        </View>
-
-        <KeyboardSpacer />
-      </View>
+    return(
+      <ContactList contacts={this.state.contactList}/>
     );
   }
 }
