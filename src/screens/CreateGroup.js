@@ -40,10 +40,6 @@ class CreateGroup extends Component {
 
     this.mounted = false;
     this.state = {
-      email: '',
-      password: '',
-      confirmPassword: '',
-      confirmPasswordVisible: false,
       contactPermission:undefined,
       contactList:[],
       contactLoading:false,
@@ -103,6 +99,7 @@ class CreateGroup extends Component {
       // contacts returned
       this.setState({ 
         contactList:contacts,
+        contactPermission:true,
         contactLoading:false });
     })
   }
@@ -111,7 +108,6 @@ class CreateGroup extends Component {
     const permission = await this.checkContactPermission();
 
     if(permission){
-      this.setState({ contactPermission:true });
       this.getContact();
     }else if(permission === false){
       await this.requestContactPermission();
@@ -133,7 +129,6 @@ class CreateGroup extends Component {
         }
       )
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        this.setState({ contactPermission:true });
         this.getContact();
       } else {
         this.setState({ contactPermission:false });
@@ -161,7 +156,10 @@ class CreateGroup extends Component {
 
   render() {
     return(
-      <ContactList contacts={this.state.contactList}/>
+      <ContactList contacts={this.state.contactList} 
+      contactPermission={this.state.contactPermission}
+      contactLoading={this.state.contactLoading}
+      retry={()=>{this.getContactSafe()}}/>
     );
   }
 }

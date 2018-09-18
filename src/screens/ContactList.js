@@ -10,12 +10,9 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import CheckBox from 'react-native-check-box'
+import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
-import Contacts from 'react-native-contacts';
-
-import logoImage from 'WeTime/src/images/rn-logo.png';
 
 export default class ContactList extends Component {
   constructor(props) {
@@ -109,6 +106,15 @@ export default class ContactList extends Component {
           }
         </View>
         <View>
+        {(this.props.contactLoading) 
+        ?
+          <View>
+            <Text>
+              Loading
+            </Text>
+          </View>
+        :(this.state.fakeContact.length > 0)
+          ?
           <FlatList data={this.state.fakeContact} keyExtractor={item => item.recordID} extraData={this.state} renderItem={({item}) => {
             return <TouchableOpacity style={{
               flexDirection: 'row',
@@ -150,7 +156,24 @@ export default class ContactList extends Component {
               </View>
             </TouchableOpacity>
           }}/>
+          :this.props.contactPermission 
+            ?
+            <View>
+              <Text>
+                You don't have any contact
+              </Text>
+              <Button text="Try again" onPress={this.props.retry}/>
+            </View>
+            :
+            <View>
+              <Text>
+                We have no permission to get your contact list
+              </Text>
+              <Button text="try again" onPress={this.props.retry}/>
+            </View>
+          }
         </View>
+
         {(this.state.SelectedFakeContactList.length > 0)
         ?
         (
