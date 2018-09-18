@@ -13,8 +13,10 @@ import {
 import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
+import ContactList from 'WeTime/src/components/ContactList';
+import SearchBar from 'WeTime/src/components/SearchBar';
 
-export default class ContactList extends Component {
+export default class ContactTab extends Component {
   constructor(props) {
     super(props)
 
@@ -30,12 +32,10 @@ export default class ContactList extends Component {
         item.check = !item.check
         if (item.check === true) {
           this.state.SelectedFakeContactList.push(item);
-          console.log('selected:' + item.givenName);
         } else if (item.check === false) {
           const i = this.state.SelectedFakeContactList.indexOf(item)
           if (1 != -1) {
             this.state.SelectedFakeContactList.splice(i, 1)
-            console.log('unselect:' + item.givenName)
             return this.state.SelectedFakeContactList
           }
         }
@@ -69,7 +69,7 @@ export default class ContactList extends Component {
                   justifyContent: 'center',
                   alignContent: 'center'
                 }}>
-                  <FlatList data={this.state.SelectedFakeContactList} horizontal={true} extraData={this.state} keyExtractor={(item, index) => item.recordID} 
+                  <FlatList data={this.state.SelectedFakeContactList} horizontal={true} keyExtractor={(item, index) => item.recordID} 
                   renderItem={({item, index}) => {
                     return <TouchableOpacity 
                     onPress={() => {
@@ -106,74 +106,17 @@ export default class ContactList extends Component {
           }
         </View>
         <View>
-        {(this.props.contactLoading) 
-        ?
-          <View>
-            <Text>
-              Loading
-            </Text>
-          </View>
-        :(this.state.fakeContact.length > 0)
-          ?
-          <FlatList data={this.state.fakeContact} keyExtractor={item => item.recordID} extraData={this.state} renderItem={({item}) => {
-            return <TouchableOpacity style={{
-              flexDirection: 'row',
-              padding: 10,
-              borderBottomWidth: 1,
-              borderStyle: 'solid',
-              borderColor: '#ecf0f1'
-            }} onPress={() => {
-              this.press(item)
-            }}>
-              <View style={{
-                flex: 3,
-                alignItems: 'flex-start',
-                justifyContent: 'center'
-              }}>
-                {item.check
-                  ? (
-                    <Text style={{
-                      fontWeight: 'bold'
-                    }}>{`${item.familyName} ${item.givenName}`}</Text>
-                  )
-                  : (
-                    <Text>{`${item.familyName} ${item.givenName}`}</Text>
-                  )}
-              </View>
-              <View style={{
-                flex: 1,
-                alignItems: 'flex-end',
-                justifyContent: 'center'
-              }}>
-                
-              {item.check
-                ? (
-                  <Icon name="ios-checkbox" size={30}></Icon>
-                )
-                : (
-                  <Icon name="ios-square-outline" size={30}></Icon>
-                )}
-              </View>
-            </TouchableOpacity>
-          }}/>
-          :this.props.contactPermission 
-            ?
-            <View>
-              <Text>
-                You don't have any contact
-              </Text>
-              <Button text="Try again" onPress={this.props.retry}/>
-            </View>
-            :
-            <View>
-              <Text>
-                We have no permission to get your contact list
-              </Text>
-              <Button text="try again" onPress={this.props.retry}/>
-            </View>
-          }
+        <SearchBar
+            placeholder="Search your contacts"
+            onChangeText={(query) => console.log(query)}
+        />
+        <ContactList 
+        contacts={this.state.fakeContact}
+        contactsSelected={this.state.SelectedFakeContactList}
+        contactLoading={this.props.contactLoading}
+        press={this.press.bind(this)}/>
         </View>
-
+        
         {(this.state.SelectedFakeContactList.length > 0)
         ?
         (
@@ -203,7 +146,7 @@ export default class ContactList extends Component {
   };
 };
 
-ContactList.propTypes = {
+ContactTab.propTypes = {
   contacts: PropTypes.array.isRequired,
 };
 

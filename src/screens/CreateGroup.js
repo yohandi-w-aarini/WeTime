@@ -3,13 +3,15 @@ import { StyleSheet, Dimensions, Text, View, Image, PermissionsAndroid } from 'r
 import Meteor from 'react-native-meteor';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import Contacts from 'react-native-contacts';
+import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 
 import {name as appName} from 'WeTime/app.json';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
-import ContactList from './ContactList';
+import ContactTab from './ContactTab';
+
 
 const window = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -44,6 +46,11 @@ class CreateGroup extends Component {
       contactList:[],
       contactLoading:false,
       error: null,
+      index: 0,
+      routes: [
+        { key: 'contactList', title: 'Contact List' },
+        { key: 'email', title: 'Email' },
+      ]
     };
   }
 
@@ -156,10 +163,25 @@ class CreateGroup extends Component {
 
   render() {
     return(
-      <ContactList contacts={this.state.contactList} 
-      contactPermission={this.state.contactPermission}
-      contactLoading={this.state.contactLoading}
-      retry={()=>{this.getContactSafe()}}/>
+      <TabView
+        navigationState={this.state}
+        renderScene={(navigator) => {
+          switch (navigator.route.key) {
+            case 'contactList':
+              return <ContactTab contacts={this.state.contactList} 
+              contactPermission={this.state.contactPermission}
+              contactLoading={this.state.contactLoading}
+              retry={()=>{this.getContactSafe()}}/>;
+            case 'email':
+              return <View style={[{ backgroundColor: '#673ab7' }]} />;
+            default:
+              return null;
+            }
+          }
+        }
+        onIndexChange={index => this.setState({ index })}
+        initialLayout={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height }}
+      />
     );
   }
 }
