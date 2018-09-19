@@ -14,6 +14,7 @@ import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import ContactList from 'WeTime/src/components/ContactList';
+import ContactListSelected from 'WeTime/src/components/ContactListSelected';
 import SearchBar from 'WeTime/src/components/SearchBar';
 
 export default class ContactTab extends Component {
@@ -69,36 +70,7 @@ export default class ContactTab extends Component {
                   justifyContent: 'center',
                   alignContent: 'center'
                 }}>
-                  <FlatList data={this.state.SelectedFakeContactList} horizontal={true} keyExtractor={(item, index) => item.recordID} 
-                  renderItem={({item, index}) => {
-                    return <TouchableOpacity 
-                    onPress={() => {
-                      this.press(item)
-                    }}
-                    style={{
-                      paddingTop: 10,
-                      flexDirection:"row",
-                      marginRight:5
-                    }}>
-                      <Text style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        padding: 2,
-                      }}>{`${item.givenName}`}
-                      </Text>
-                      <IconFA
-                        name="remove"
-                        color="white"
-                        size={15}
-                      />
-                      <Text style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                      }}>,
-                      </Text>
-                    </TouchableOpacity>
-                  }}/>
-
+                <ContactListSelected contactsSelected={this.state.SelectedFakeContactList} press={this.press.bind(this)}/>
                 </View>
               </View>
             )
