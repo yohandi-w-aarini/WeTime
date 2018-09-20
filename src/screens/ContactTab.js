@@ -14,7 +14,6 @@ import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import ContactList from 'WeTime/src/components/ContactList';
-import ContactListSelected from 'WeTime/src/components/ContactListSelected';
 import SearchBar from 'WeTime/src/components/SearchBar';
 
 export default class ContactTab extends Component {
@@ -23,70 +22,48 @@ export default class ContactTab extends Component {
 
     this.state = {
       fakeContact: [],
-      SelectedFakeContactList: []
+      SelectedFakeContactList: [],
+      filter:undefined
     }
   }
 
-  press = (hey) => {
-    this.state.fakeContact.map((item) => {
-      if (item.recordID === hey.recordID) {
-        item.check = !item.check
-        if (item.check === true) {
-          this.state.SelectedFakeContactList.push(item);
-        } else if (item.check === false) {
-          const i = this.state.SelectedFakeContactList.indexOf(item)
-          if (1 != -1) {
-            this.state.SelectedFakeContactList.splice(i, 1)
-            return this.state.SelectedFakeContactList
-          }
-        }
-      }
-    })
-    this.setState({fakeContact: this.state.fakeContact})
-  }
-
-  _showSelectedContact() {
-    return this.state.SelectedFakeContactList.length;
-  }
-
   componentDidMount() {
-    this.setState({fakeContact: this.props.contacts.sort()});
+    this.setState({
+      fakeContact: this.props.contacts,
+      SelectedFakeContactList: this.props.contactsSelected
+    });
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({fakeContact: nextProps.contacts.sort()});
+    this.setState({
+      fakeContact: nextProps.contacts,
+      SelectedFakeContactList: nextProps.contactsSelected
+    });
+  }
+
+  setSearchFilter(query){
+    console.log(query);
+    this.setState({
+      filter: query,
+    });
   }
 
   render() {
     return (
       <View style={styles.container}>
         <View>
-          {(this.state.SelectedFakeContactList.length > 0)
-            ? (
-              <View style={styles.containerFooter}>
-                <View style={{
-                  flex: 3,
-                  alignItems: 'flex-start',
-                  justifyContent: 'center',
-                  alignContent: 'center'
-                }}>
-                <ContactListSelected contactsSelected={this.state.SelectedFakeContactList} press={this.press.bind(this)}/>
-                </View>
-              </View>
-            )
-            : null
-          }
-        </View>
-        <View>
         <SearchBar
+            style={{flex: 1}}
             placeholder="Search your contacts"
-            onChangeText={(query) => console.log(query)}
+            onChangeText={this.setSearchFilter.bind(this)}
+            onBlur={this.setSearchFilter(false)}
         />
         <ContactList 
         contacts={this.state.fakeContact}
         contactsSelected={this.state.SelectedFakeContactList}
         contactLoading={this.props.contactLoading}
-        press={this.press.bind(this)}/>
+        contactsFilter={this.state.filter}
+        press={this.props.press}/>
         </View>
         
         {(this.state.SelectedFakeContactList.length > 0)
@@ -120,6 +97,8 @@ export default class ContactTab extends Component {
 
 ContactTab.propTypes = {
   contacts: PropTypes.array.isRequired,
+  contactsSelected: PropTypes.array.isRequired,
+  press: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({

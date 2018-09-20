@@ -11,15 +11,16 @@ import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
 import ContactTab from './ContactTab';
+import ContactListSelected from 'WeTime/src/components/ContactListSelected';
 
 
 const window = Dimensions.get('window');
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
+  containerFooter: {
+    height: 50,
+    backgroundColor: '#1abc9c',
+    padding: 5,
+    flexDirection: 'row'
   },
   buttons: {
     flexDirection: 'row',
@@ -50,7 +51,8 @@ class CreateGroup extends Component {
       routes: [
         { key: 'contactList', title: 'Contact List' },
         { key: 'email', title: 'Email' },
-      ]
+      ],
+      selectedContactList:[]
     };
   }
 
@@ -105,7 +107,7 @@ class CreateGroup extends Component {
   
       // contacts returned
       this.setState({ 
-        contactList:contacts,
+        contactList:contacts.sort(),
         contactPermission:true,
         contactLoading:false });
     })
@@ -161,27 +163,65 @@ class CreateGroup extends Component {
     }
   }
 
-  render() {
-    return(
-      <TabView
-        navigationState={this.state}
-        renderScene={(navigator) => {
-          switch (navigator.route.key) {
-            case 'contactList':
-              return <ContactTab contacts={this.state.contactList} 
-              contactPermission={this.state.contactPermission}
-              contactLoading={this.state.contactLoading}
-              retry={()=>{this.getContactSafe()}}/>;
-            case 'email':
-              return <View style={[{ backgroundColor: '#673ab7' }]} />;
-            default:
-              return null;
-            }
+  press = (hey) => {
+    this.state.contactList.map((item) => {
+      if (item.recordID === hey.recordID) {
+        item.check = !item.check
+        if (item.check === true) {
+          this.state.selectedContactList.push(item);
+        } else if (item.check === false) {
+          const i = this.state.selectedContactList.indexOf(item)
+          if (1 != -1) {
+            this.state.selectedContactList.splice(i, 1)
+            return this.state.selectedContactList
           }
         }
-        onIndexChange={index => this.setState({ index })}
-        initialLayout={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height }}
-      />
+      }
+    })
+    this.setState({contactList: this.state.contactList})
+  }
+
+  render() {
+    return(
+      <View style={{flex: 1}}>
+        {(this.state.selectedContactList.length > 0)
+          ? (
+            <View style={styles.containerFooter}>
+              <View style={{
+                flex: 3,
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                alignContent: 'center'
+              }}>
+              <ContactListSelected contactsSelected={this.state.selectedContactList} press={this.press.bind(this)}/>
+              </View>
+            </View>
+          )
+          : null
+        }
+        <TabView
+          style={{flex: 1}}
+          navigationState={this.state}
+          renderScene={(navigator) => {
+            switch (navigator.route.key) {
+              case 'contactList':
+                return <ContactTab contacts={this.state.contactList}
+                contactsSelected={this.state.selectedContactList}
+                contactPermission={this.state.contactPermission}
+                contactLoading={this.state.contactLoading}
+                press={this.press.bind(this)}
+                retry={()=>{this.getContactSafe()}}/>;
+              case 'email':
+                return <View style={[{ backgroundColor: '#673ab7' }]} />;
+              default:
+                return null;
+              }
+            }
+          }
+          onIndexChange={index => this.setState({ index })}
+          initialLayout={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height }}
+        />
+      </View>
     );
   }
 }

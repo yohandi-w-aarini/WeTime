@@ -3,6 +3,15 @@ import { colors } from 'WeTime/src/config/styles';
 
 const window = Dimensions.get('window');
 export default StyleSheet.create({
+  searchSection: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  searchIcon: {
+      padding: 10,
+  },
   input: {
     height: 40,
     borderRadius: 5,
