@@ -26,87 +26,120 @@ export default class ContactList extends Component {
   }
 
   componentDidMount() {
-    this.setState({
-        fakeContact: this.props.contacts,
-        SelectedFakeContactList: this.props.contactsSelected
-    });
+    this.setContactState(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
+    this.setContactState(nextProps);
+  }
+
+  setContactState(props){
+    var contacts;
+    if(props.contactsFilter){
+      contacts = props.contacts.filter(
+        (contact) => {
+          return (this.stringMatch(contact.givenName,props.contactsFilter) || this.stringMatch(contact.middleName,props.contactsFilter) || this.stringMatch(contact.familyName,props.contactsFilter));
+        });
+    }else{
+      contacts = props.contacts
+    }
     this.setState({
-        fakeContact: nextProps.contacts,
-        SelectedFakeContactList: nextProps.contactsSelected
+        fakeContact: contacts,
+        SelectedFakeContactList: props.contactsSelected
     });
   }
 
+  stringMatch(theString, matchString){
+    if (theString && matchString){
+      if((theString.toString().toLowerCase()).match((matchString.toString().toLowerCase()))){
+        return true;
+      }
+    }
+    return false
+  }
+
   render() {
-    return (
-        (this.props.contactLoading) 
-        ?
-          <View>
+    if(this.props.contactLoading){
+      return (
+        <View>
             <Text>
               Loading
             </Text>
-          </View>
-        :(this.state.fakeContact.length > 0)
-          ?
-          <FlatList data={this.state.fakeContact} keyExtractor={item => item.recordID} extraData={this.state} renderItem={({item}) => {
-            return <TouchableOpacity style={{
-              flexDirection: 'row',
-              padding: 10,
-              borderBottomWidth: 1,
-              borderStyle: 'solid',
-              borderColor: '#ecf0f1'
-            }} onPress={() => {
-              this.props.press(item);
+        </View>
+      )
+    }
+    else if(this.state.fakeContact.length > 0){
+      return (
+        <FlatList data={this.state.fakeContact} keyExtractor={item => item.recordID} extraData={this.state} renderItem={({item}) => {
+          return <TouchableOpacity style={{
+            flexDirection: 'row',
+            padding: 10,
+            borderBottomWidth: 1,
+            borderStyle: 'solid',
+            borderColor: '#ecf0f1'
+          }} onPress={() => {
+            this.props.press(item);
+          }}>
+            <View style={{
+              flex: 3,
+              alignItems: 'flex-start',
+              justifyContent: 'center'
             }}>
-              <View style={{
-                flex: 3,
-                alignItems: 'flex-start',
-                justifyContent: 'center'
-              }}>
-                {item.check
-                  ? (
-                    <Text style={{
-                      fontWeight: 'bold'
-                    }}>{`${item.familyName} ${item.givenName}`}</Text>
-                  )
-                  : (
-                    <Text>{`${item.familyName} ${item.givenName}`}</Text>
-                  )}
-              </View>
-              <View style={{
-                flex: 1,
-                alignItems: 'flex-end',
-                justifyContent: 'center'
-              }}>
-                
               {item.check
                 ? (
-                  <Icon name="ios-checkbox" size={30}></Icon>
+                  <Text style={{
+                    fontWeight: 'bold'
+                  }}>{`${item.givenName ? item.givenName : ""} ${item.familyName ? item.familyName : ""}`}</Text>
                 )
                 : (
-                  <Icon name="ios-square-outline" size={30}></Icon>
+                  <Text>{`${item.givenName ? item.givenName : ""} ${item.familyName ? item.familyName : ""}`}</Text>
                 )}
-              </View>
-            </TouchableOpacity>
-          }}/>
-          :this.props.contactPermission 
-            ?
-            <View>
-              <Text>
-                You don't have any contact
-              </Text>
-              <Button text="Try again" onPress={this.props.retry}/>
             </View>
-            :
-            <View>
-              <Text>
-                We have no permission to get your contact list
-              </Text>
-              <Button text="try again" onPress={this.props.retry}/>
+            <View style={{
+              flex: 1,
+              alignItems: 'flex-end',
+              justifyContent: 'center'
+            }}>
+              
+            {item.check
+              ? (
+                <Icon name="ios-checkbox" size={30}></Icon>
+              )
+              : (
+                <Icon name="ios-square-outline" size={30}></Icon>
+              )}
             </View>
-    );
+          </TouchableOpacity>
+        }}/>
+      )
+    }
+    else if(!this.props.contactsFilter && this.props.contactPermission){
+      return (
+        <View>
+          <Text>
+            You don't have any contact
+          </Text>
+          <Button text="Try again" onPress={this.props.retry}/>
+        </View>
+      )
+    }else if(!this.props.contactsFilter && !this.props.contactPermission){
+      return (
+        <View>
+          <Text>
+            We have no permission to get your contact list
+          </Text>
+          <Button text="try again" onPress={this.props.retry}/>
+        </View>
+      )
+    }else{
+      return (
+        <View>
+          <Text>
+            No results found for '{this.props.contactsFilter}'
+          </Text>
+        </View>
+      )
+    }
   };
 };
 

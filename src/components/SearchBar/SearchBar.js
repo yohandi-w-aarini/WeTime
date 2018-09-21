@@ -17,10 +17,13 @@ class SearchBar extends Component {
           autoCorrect={false}
           {...this.props}
         />
+        {this.refs['search'] && this.refs['search'].isFocused()
+        ?
         <TouchableOpacity style={styles.searchIcon} 
           onPress={() => {
             this.refs['search'].clear()
             this.refs['search'].blur()
+            this.props.removeFilter(false);
           }}>
           <IconFA
             name="remove"
@@ -28,6 +31,10 @@ class SearchBar extends Component {
             size={15}
           />
         </TouchableOpacity>
+        :
+        null
+        }
+        
       </View>
     );
   }

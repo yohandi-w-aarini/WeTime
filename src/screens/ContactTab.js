@@ -42,7 +42,6 @@ export default class ContactTab extends Component {
   }
 
   setSearchFilter(query){
-    console.log(query);
     this.setState({
       filter: query,
     });
@@ -56,11 +55,12 @@ export default class ContactTab extends Component {
             style={{flex: 1}}
             placeholder="Search your contacts"
             onChangeText={this.setSearchFilter.bind(this)}
-            onBlur={this.setSearchFilter(false)}
+            removeFilter={this.setSearchFilter.bind(this)}
         />
         <ContactList 
         contacts={this.state.fakeContact}
         contactsSelected={this.state.SelectedFakeContactList}
+        contactPermission={this.props.contactPermission}
         contactLoading={this.props.contactLoading}
         contactsFilter={this.state.filter}
         press={this.props.press}/>
