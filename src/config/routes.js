@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { Image } from 'react-native';
-import { StackNavigator, TabNavigator } from 'react-navigation';
+import { StackNavigator, DrawerNavigator } from 'react-navigation';
 
 import Home from 'WeTime/src/screens/Home';
 import HomeAuth from 'WeTime/src/screens/HomeAuth';
@@ -17,7 +17,7 @@ export const AuthStack = StackNavigator({
   headerMode: 'none',
 });
 
-export const PublicStack = StackNavigator({
+export const PublicStack = DrawerNavigator({
   Home: {
     screen: Home,
     header:null
@@ -25,14 +25,14 @@ export const PublicStack = StackNavigator({
   SignIn: {
     screen: SignIn,
   },
-  CreateGroup: {
-    screen: CreateGroup,
-  }
 });
 
 export const PrivateStack = StackNavigator({
-    HomeAuth: {
-      screen: HomeAuth,
+    Home: {
+      screen: Home,
       header:null
+    },  
+    CreateGroup: {
+      screen: CreateGroup,
     }
   });

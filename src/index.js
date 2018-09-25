@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Meteor, { createContainer } from 'react-native-meteor';
+import Meteor, { withTracker } from 'react-native-meteor';
 import { NetInfo } from 'react-native';
 
-import { PublicStack, PrivateStack } from 'WeTime/src/config/routes';
+import { AuthStack, PrivateStack } from 'WeTime/src/config/routes';
 import Loading from 'WeTime/src/components/Loading';
 import NoInternet from 'WeTime/src/components/NoInternet';
 import settings from 'WeTime/src/config/settings';
@@ -117,7 +117,7 @@ class App extends React.Component {
       else if (user !== null) {
         return <PrivateStack />;
       }else{
-        return <PublicStack />;
+        return <AuthStack />;
       }
     }else{
       return(
@@ -133,10 +133,10 @@ App.propTypes = {
   loggingIn: PropTypes.bool,
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
   return {
     status: Meteor.status(),
     user: Meteor.user(),
     loggingIn: Meteor.loggingIn(),
   };
-}, App);
+})(App);
