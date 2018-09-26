@@ -26,24 +26,23 @@ const styles = StyleSheet.create({
 });
 
 export default class GroupOverview extends Component {
-  static navigationOptions = {
-    drawerLabel: 'myFirstGroup',
-    drawerIcon: ({ tintColor }) => (
-      <Image
-        source={require('WeTime/assets/RNFirebase.png')}
-        style={[styles.icon, {tintColor: tintColor}]}
-      />
-    ),
-  };
   render(){
-      console.log("hello from GroupOverview  render");
-      console.log(this.props.group);
     return(
+      //this.props.groupOverviewStack
         <View style={styles.container}>
-        <Text style={styles.main}>
-            group stuff here
-        </Text>
+          <Text style={styles.main}>
+            Group home with drawer navigation here
+          </Text>
+          <Text style={styles.main}>
+            Group name: {this.props.selectedGroup.groupName}
+          </Text>
         </View>
     );
   }
+};
+
+GroupOverview.propTypes = {
+  selectedGroup: PropTypes.object.isRequired,
+  currentUser: PropTypes.object.isRequired,
+  groups: PropTypes.array.isRequired,
 };

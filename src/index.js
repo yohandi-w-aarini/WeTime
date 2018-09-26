@@ -114,7 +114,7 @@ class App extends React.Component {
       else if((status.connected === false || loggingIn) && this.state.elapsed >= 5000){
         return <ServerUnreachable/>
       }
-      else if (user !== null) {
+      else if (user) {
         return <PrivateStack />;
       }else{
         return <AuthStack />;
