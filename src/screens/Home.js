@@ -26,74 +26,28 @@ const styles = StyleSheet.create({
 });
 
 class Home extends Component {
-  static navigationOptions = ({ navigation }) => {
-    var param = navigation.getParam('headerParam', false);
-    console.log(param);
-    if(param){
-      return {
-        title: navigation.getParam('headerParam', ''),
-      };
-    }else{
-      return{
-        headerMode: 'none',
-        navigationOptions: {
-            headerVisible: false,
-        }
-      }
-    }
-    
-  };
-
   constructor(props) {
     super(props);
-    this.state = {
-      selectedGroup:undefined,
-      selectedGroupIndex:-1,
-    };
   }
 
   componentDidMount(){
-    this.selectGroup(this.props.groups);
+    this.selectGroup(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    this.selectGroup(nextProps.groups);
+    this.selectGroup(nextProps);
   }
 
-  selectGroup(groups){
+  selectGroup(props){
     var selectedGroupIndex = 0;
-    if(groups && groups.length > 0){
-      if(selectedGroupIndex != this.state.selectedGroupIndex){
-        var selectedGroup = groups[selectedGroupIndex];
-        this.setState({
-          selectedGroup:groups[selectedGroupIndex],
-          selectedGroupIndex:selectedGroupIndex
-        })
-        this.props.navigation.setParams({headerParam: selectedGroup.groupName});
-      }
-    }else{
-      this.setState({
-        selectedGroup:undefined,
-        selectedGroupIndex:-1
-      })
+    if(props.groups && props.groups.length > 0){
+      this.props.navigation.replace('GroupOverview', {groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser});
     }
   }
 
   render(){
     if(this.props.dataReady){
-      if(this.props.groups.length > 0 && this.state.selectedGroup){
-        //show group home screen
-        const menu = <SidebarMenu 
-          groups={this.props.groups} 
-          currentUser={this.props.currentUser} 
-          selectedGroupIndex={this.state.selectedGroupIndex} 
-          createNewClick={() => this.props.navigation.navigate('CreateGroup', {navigation:this.props.navigation})}/>;
-        return(
-          <SideMenu menu={menu}>
-            <GroupOverview currentUser={this.props.currentUser} groups={this.props.groups} selectedGroup={this.state.selectedGroup}/>
-          </SideMenu>
-        );
-      }else if(this.props.groups.length < 1){  
+      if(this.props.groups.length < 1){  
         //show welcome
         return(
           <View style={styles.container}>

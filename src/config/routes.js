@@ -7,6 +7,7 @@ import Home from 'WeTime/src/screens/Home';
 import HomeAuth from 'WeTime/src/screens/HomeAuth';
 import SignIn from 'WeTime/src/screens/SignIn';
 import CreateGroup from 'WeTime/src/screens/CreateGroup';
+import GroupOverview from 'WeTime/src/screens/GroupOverview';
 
 
 export const AuthStack = createStackNavigator({
@@ -28,10 +29,16 @@ export const PublicStack = DrawerNavigator({
 });
 
 export const PrivateStack = createStackNavigator({
-    Home: {
-      screen: Home,
-    },  
-    CreateGroup: {
-      screen: CreateGroup,
+  Home: {
+    screen: Home,
+    navigationOptions: {
+      header: null,
     }
-  });
+  },
+  GroupOverview: {
+    screen: GroupOverview,
+  },
+  CreateGroup: {
+    screen: CreateGroup,
+  }
+});
