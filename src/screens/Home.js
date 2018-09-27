@@ -26,24 +26,6 @@ const styles = StyleSheet.create({
 });
 
 class Home extends Component {
-  static navigationOptions = ({ navigation }) => {
-    var param = navigation.getParam('headerParam', false);
-    console.log(param);
-    if(param){
-      return {
-        title: navigation.getParam('headerParam', ''),
-      };
-    }else{
-      return{
-        headerMode: 'none',
-        navigationOptions: {
-            headerVisible: false,
-        }
-      }
-    }
-    
-  };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -132,11 +114,10 @@ Home.propTypes = {
   navigation: PropTypes.object,
 };
 
-export default withTracker((props) => {
+var homeContainer = withTracker((props) => {
   var user = Meteor.user();
   var dataReady = false;
   var groups = [];
-  var groupOverviewStack;
 
   if(user){
     const handle = Meteor.subscribe('group',{
@@ -153,30 +134,30 @@ export default withTracker((props) => {
 
     if(handle.ready()){
         groups =  Meteor.collection('group').find();
-        // var screenMapping={};
-        if(groups.length > 0){
-          
-          // groups.forEach((group,index) => {
-          //   screenMapping["GroupIndex"+index]={"screen": (props) => <GroupOverview {...props} group={group}/>};
-          // });
-          
-          // groupOverviewStack = DrawerNavigator({
-          //   GroupIndex0: {
-          //     screen: (props) => <GroupHome {...props} group={groups[0]}/>
-          //   }
-          //   // ...screenMapping,
-          // });
-
-          // console.log("hello from home");
-          // console.log(groupOverviewStack);
-        }
         dataReady = true;
     }
   }
   return {
     dataReady: dataReady,
     groups:groups,
-    groupOverviewStack:groupOverviewStack,
     currentUser: user,
   };
 })(Home);
+
+
+homeContainer.navigationOptions = ({ navigation }) => {
+  var param = navigation.getParam('headerParam', false);
+  console.log(param);
+  if(param){
+    return {
+      title: navigation.getParam('headerParam', ''),
+    };
+  }else{
+    return{
+      header: null,
+    }
+  }
+  
+};
+
+export default homeContainer;
