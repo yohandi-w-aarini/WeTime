@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Image } from 'react-native';
+import { createStackNavigator } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
@@ -29,13 +30,13 @@ const styles = StyleSheet.create({
 
 class GroupOverview extends Component {
   render(){
-    const menu = <SidebarMenu 
-          groups={this.props.groups} 
-          currentUser={this.props.currentUser}
-          selectedGroup={this.props.selectedGroup}
-          createNewClick={() => this.props.navigation.navigate('CreateGroup', {navigation:this.props.navigation})}/>;
+    // const menu = <SidebarMenu 
+    //       groups={this.props.groups} 
+    //       currentUser={this.props.currentUser}
+    //       selectedGroup={this.props.selectedGroup}
+    //       createNewClick={() => this.props.navigation.navigate('CreateGroup', {navigation:this.props.navigation})}/>;
     return(
-      <SideMenu menu={menu}>
+      // <SideMenu menu={menu}>
         <View style={styles.container}>
           <Text style={styles.main}>
             Group home with drawer navigation here
@@ -44,7 +45,7 @@ class GroupOverview extends Component {
             Group name: {this.props.selectedGroup.groupName}
           </Text>
         </View>
-      </SideMenu>
+      // </SideMenu>
     );
   }
 };
@@ -60,23 +61,30 @@ var groupOverviewContainer = withTracker((props) => {
   var dataReady = false;
   var groups = [];
   var group;
+  
+  var nav;
+  if(props.screenProps && props.screenProps.rootNavigation){
+    nav = props.screenProps.rootNavigation;
+  }else{
+    nav = props.navigation;
+  }
 
   if(props.groups){
     groups = props.groups
-  }else{
-    groups = props.navigation.getParam('groups', []);
+  }else if(nav){
+    groups = nav.getParam('groups', []);
   }
 
   if(props.selectedGroup){
     group = props.selectedGroup
-  }else{
-    group = props.navigation.getParam('selectedGroup', undefined);
+  }else if(nav){
+    group = nav.getParam('selectedGroup', undefined);
   }
 
   if(props.currentUser){
     user = props.currentUser
-  }else{
-    user = props.navigation.getParam('currentUser', undefined);
+  }else if(nav){
+    user = nav.getParam('currentUser', undefined);
   }
 
   return {
@@ -87,10 +95,13 @@ var groupOverviewContainer = withTracker((props) => {
   };
 })(GroupOverview);
 
-groupOverviewContainer.navigationOptions = ({ navigation }) => {
-  console.log("hi from navigation options in group overview");
-  console.log(navigation);
+groupOverviewContainer.navigationOptions = ({ navigation, screenProps }) => {
   var param = navigation.getParam('selectedGroup', undefined);
+
+  if(!param && screenProps && screenProps.rootNavigation){
+    param = screenProps.rootNavigation.getParam('selectedGroup', undefined);
+  }
+
   if(param && param.groupName){
     return {
       title: param.groupName,
@@ -103,4 +114,21 @@ groupOverviewContainer.navigationOptions = ({ navigation }) => {
   
 };
 
-export default groupOverviewContainer;
+const GroupOverviewStack = createStackNavigator({
+  GroupOverview: {
+    screen: groupOverviewContainer,
+  },
+});
+
+class GroupOverviewStackWrapper extends React.Component {
+  constructor(props)  {
+      super(props);
+  }
+  render() {
+      return (
+          <GroupOverviewStack screenProps={{ rootNavigation: this.props.navigation }} />
+      );
+  }
+}
+
+export default GroupOverviewStackWrapper;

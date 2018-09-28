@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { DrawerNavigator } from 'react-navigation';
+import { StackActions, NavigationActions  } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
@@ -38,10 +38,22 @@ class Home extends Component {
     this.selectGroup(nextProps);
   }
 
+  // resetAction(props, selectedGroupIndex){
+  //   return StackActions.reset({
+  //     index: 0, 
+  //     key: null,
+  //     actions: [
+  //         NavigationActions.navigate({ routeName: 'PrivateStackDrawer',params:{groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser}})
+  //     ],
+  //   });
+  // }
+
   selectGroup(props){
     var selectedGroupIndex = 0;
     if(props.groups && props.groups.length > 0){
-      this.props.navigation.replace('GroupOverview', {groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser});
+      // this.props.navigation.dispatch(this.resetAction(props, selectedGroupIndex));
+      // this.props.navigation.replace('GroupHome', {}, NavigationActions.navigate({routeName:'GroupOverview', params:{groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser}}));
+      this.props.navigation.replace('GroupHome', {groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser});
     }
   }
 
