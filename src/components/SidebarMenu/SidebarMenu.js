@@ -10,46 +10,63 @@ import {
   TextInput,
   Alert
 } from 'react-native';
+import Meteor, { withTracker } from 'react-native-meteor';
 import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import styles from './styles';
 
-export default class SidebarMenu extends Component {
+class SidebarMenu extends Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      fakeContact: [],
-      SelectedFakeContactList: []
-    }
-  }
-
-  componentDidMount() {
-  }
-
-  componentWillReceiveProps(nextProps) {
   }
 
   renderGroups(){
-    return this.props.groups.map((group, index) => {
+    if(this.props.groups && this.props.groups.length > 0){
+        return this.props.groups.map((group, index) => {
+            if(this.props.selectedGroupId && group._id == this.props.selectedGroupId){
+                return(
+                    <Text key={group._id}>
+                        {group.groupName} --*
+                    </Text>
+                );
+            }
+            return(
+                <Text key={group._id}>
+                    {group.groupName}
+                </Text>
+            );
+          });
+    }else{
         return(
-            <Text key={group._id}>
-                {group.groupName}
+            <Text>
+                You don't currently have any team
             </Text>
-        )
-      });
+        );
+    }
+    
   }
 
   render() {
-    if(this.props.groups && this.props.groups.length > 0){
+    if(this.props.dataReady){
         return(
             <View style={styles.container}>
                 <Text>
                     MyTeams
                 </Text>
                 {this.renderGroups()}
-                <Button text="Create a Team" onPress={this.props.createNewClick}/>
+                <Button text="Create a Team" onPress={()=>{
+                    this.props.navigation.navigate('CreateGroup');
+                    // this.props.navigation.navigate('NestedNavigator1', {}, NavigationActions.navigate({ routeName: 'screenB' }))
+                }}/>
+            </View>
+        );
+    }else{
+        return (
+            <View style={styles.container}>
+                <Text>
+                    Loading
+                </Text>
             </View>
         );
     }
@@ -57,7 +74,49 @@ export default class SidebarMenu extends Component {
 };
 
 SidebarMenu.propTypes = {
-    createNewClick: PropTypes.func.isRequired, 
-    currentUser: PropTypes.object.isRequired,
-    groups: PropTypes.array.isRequired,
+    selectedGroupId: PropTypes.string,
 };
+
+export default withTracker((props) => {
+    var user = Meteor.user();
+    var dataReady = false;
+    var groups = [];
+    var selectedGroupId;
+
+    var nav;
+    if(props.screenProps && props.screenProps.rootNavigation){
+        nav = props.screenProps.rootNavigation;
+    }else{
+        nav = props.navigation;
+    }
+
+    if(props.selectedGroupId){
+        selectedGroupId = props.selectedGroupId
+    }else if(nav){
+        selectedGroupId = nav.getParam('selectedGroupId', undefined);
+    }
+
+    if(user){
+        const handle = Meteor.subscribe('group',{
+            $or : [
+            {"creatorId" : user._id}, 
+            {"userIds" : user._id}
+            ]
+        },{}, {
+            onError: function (error) {
+                console.log(error);
+            }
+        });
+
+        if(handle.ready()){
+            groups =  Meteor.collection('group').find();
+            dataReady = true;
+        }
+    }
+    return {
+        dataReady: dataReady,
+        groups:groups,
+        selectedGroupId:selectedGroupId,
+        currentUser: user,
+    };
+  })(SidebarMenu);
