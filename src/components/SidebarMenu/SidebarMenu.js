@@ -24,6 +24,13 @@ class SidebarMenu extends Component {
   renderGroups(){
     if(this.props.groups && this.props.groups.length > 0){
         return this.props.groups.map((group, index) => {
+            if(this.props.selectedGroupId && group._id == this.props.selectedGroupId){
+                return(
+                    <Text key={group._id}>
+                        {group.groupName} --*
+                    </Text>
+                );
+            }
             return(
                 <Text key={group._id}>
                     {group.groupName}
@@ -41,46 +48,75 @@ class SidebarMenu extends Component {
   }
 
   render() {
-    return(
-        <View style={styles.container}>
-            <Text>
-                MyTeams
-            </Text>
-            {this.renderGroups()}
-            <Button text="Create a Team" onPress={()=>{
-                this.props.navigation.navigate('CreateGroup');
-                // this.props.navigation.navigate('NestedNavigator1', {}, NavigationActions.navigate({ routeName: 'screenB' }))
-            }}/>
-        </View>
-    );
-    
+    if(this.props.dataReady){
+        return(
+            <View style={styles.container}>
+                <Text>
+                    MyTeams
+                </Text>
+                {this.renderGroups()}
+                <Button text="Create a Team" onPress={()=>{
+                    this.props.navigation.navigate('CreateGroup');
+                    // this.props.navigation.navigate('NestedNavigator1', {}, NavigationActions.navigate({ routeName: 'screenB' }))
+                }}/>
+            </View>
+        );
+    }else{
+        return (
+            <View style={styles.container}>
+                <Text>
+                    Loading
+                </Text>
+            </View>
+        );
+    }
   };
 };
 
 SidebarMenu.propTypes = {
-    createNewClick: PropTypes.func, 
-    currentUser: PropTypes.object,
-    groups: PropTypes.array,
+    selectedGroupId: PropTypes.string,
 };
 
 export default withTracker((props) => {
-    var user;
+    var user = Meteor.user();
+    var dataReady = false;
     var groups = [];
-  
-    if(props.groups){
-      groups = props.groups
+    var selectedGroupId;
+
+    var nav;
+    if(props.screenProps && props.screenProps.rootNavigation){
+        nav = props.screenProps.rootNavigation;
     }else{
-      groups = props.navigation.getParam('groups', []);
+        nav = props.navigation;
     }
-  
-    if(props.currentUser){
-      user = props.currentUser
-    }else{
-      user = props.navigation.getParam('currentUser', undefined);
+
+    if(props.selectedGroupId){
+        selectedGroupId = props.selectedGroupId
+    }else if(nav){
+        selectedGroupId = nav.getParam('selectedGroupId', undefined);
     }
-  
+
+    if(user){
+        const handle = Meteor.subscribe('group',{
+            $or : [
+            {"creatorId" : user._id}, 
+            {"userIds" : user._id}
+            ]
+        },{}, {
+            onError: function (error) {
+                console.log(error);
+            }
+        });
+
+        if(handle.ready()){
+            groups =  Meteor.collection('group').find();
+            dataReady = true;
+        }
+    }
     return {
-      groups:groups,
-      currentUser: user,
+        dataReady: dataReady,
+        groups:groups,
+        selectedGroupId:selectedGroupId,
+        currentUser: user,
     };
   })(SidebarMenu);

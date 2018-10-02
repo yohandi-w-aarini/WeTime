@@ -5,9 +5,6 @@ import { StackActions, NavigationActions  } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
-import GroupOverview from './GroupOverview';
-import SideMenu from 'react-native-side-menu';
-import SidebarMenu from 'WeTime/src/components/SidebarMenu';
 
 const styles = StyleSheet.create({
   container: {
@@ -53,7 +50,7 @@ class Home extends Component {
     if(props.groups && props.groups.length > 0){
       // this.props.navigation.dispatch(this.resetAction(props, selectedGroupIndex));
       // this.props.navigation.replace('GroupHome', {}, NavigationActions.navigate({routeName:'GroupOverview', params:{groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser}}));
-      this.props.navigation.replace('GroupHome', {groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser});
+      this.props.navigation.replace('GroupHome', {selectedGroupId:props.groups[selectedGroupIndex]._id});
     }
   }
 
@@ -102,11 +99,9 @@ export default withTracker((props) => {
   var user = Meteor.user();
   var dataReady = false;
   var groups = [];
-  var groupOverviewStack;
 
   if(user){
     const handle = Meteor.subscribe('group',{
-        
         $or : [
           {"creatorId" : user._id}, 
           {"userIds" : user._id}
@@ -119,30 +114,12 @@ export default withTracker((props) => {
 
     if(handle.ready()){
         groups =  Meteor.collection('group').find();
-        // var screenMapping={};
-        if(groups.length > 0){
-          
-          // groups.forEach((group,index) => {
-          //   screenMapping["GroupIndex"+index]={"screen": (props) => <GroupOverview {...props} group={group}/>};
-          // });
-          
-          // groupOverviewStack = DrawerNavigator({
-          //   GroupIndex0: {
-          //     screen: (props) => <GroupHome {...props} group={groups[0]}/>
-          //   }
-          //   // ...screenMapping,
-          // });
-
-          // console.log("hello from home");
-          // console.log(groupOverviewStack);
-        }
         dataReady = true;
     }
   }
   return {
     dataReady: dataReady,
     groups:groups,
-    groupOverviewStack:groupOverviewStack,
     currentUser: user,
   };
 })(Home);
