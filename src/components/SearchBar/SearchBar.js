@@ -6,6 +6,39 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
 class SearchBar extends Component {
+  constructor(props) {
+    super(props);
+    this.mounted = false;
+
+    this.state = {
+      isFocused:undefined,
+    };
+  }
+
+  componentDidMount(){
+    this.mounted = true;
+
+    this.setState({
+      isFocused: this.refs['search'] && this.refs['search'].isFocused()
+    });
+  }
+
+  componentDidUpdate(){
+    if(this.mounted){
+      var focus = this.refs['search'] && this.refs['search'].isFocused();
+
+      if(this.state.isFocused != focus){
+        this.setState({
+          isFocused: focus
+        });
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   render(){
     return (
       <View style={styles.searchSection}>
@@ -17,7 +50,7 @@ class SearchBar extends Component {
           autoCorrect={false}
           {...this.props}
         />
-        {this.refs['search'] && this.refs['search'].isFocused()
+        {this.state.isFocused
         ?
         <TouchableOpacity style={styles.searchIcon} 
           onPress={() => {

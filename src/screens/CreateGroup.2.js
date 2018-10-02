@@ -10,7 +10,7 @@ import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
-import ContactTab from './ContactTab';
+import ContactTab from 'WeTime/src/components/ContactTab';
 
 class CreateGroup extends Component {
   constructor(props) {
