@@ -6,7 +6,7 @@ import KeyboardSpacer from 'react-native-keyboard-spacer';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
-import logoImage from 'WeTime/src/images/rn-logo.png';
+import logoImage from 'WeTime/src/images/wetime.logo.png';
 
 const window = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -138,8 +138,8 @@ class SignIn extends Component {
             source={logoImage}
           />
 
-          <Text style={styles.headerText}>React Native Meteor</Text>
-          <Text style={styles.subHeaderText}>Boilerplate</Text>
+          {/* <Text style={styles.headerText}>React Native Meteor</Text>
+          <Text style={styles.subHeaderText}>Boilerplate</Text> */}
         </View>
 
         <InputWrapper>

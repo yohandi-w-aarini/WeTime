@@ -127,7 +127,6 @@ var homeContainer = withTracker((props) => {
 
 homeContainer.navigationOptions = ({ navigation }) => {
   var param = navigation.getParam('headerParam', false);
-  console.log(param);
   if(param){
     return {
       title: navigation.getParam('headerParam', ''),

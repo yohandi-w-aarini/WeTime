@@ -7,7 +7,10 @@ const HeaderSearch = (props) => {
   return (
     <View style={styles.container}>
       <Text style={styles.mainTitle}>
-        New Group
+      {props.groupName 
+        ? props.groupName
+        : "New Group"
+      }
       </Text>
       <Text style={styles.subTitle}>
         Add participants
@@ -17,11 +20,7 @@ const HeaderSearch = (props) => {
 };
 
 HeaderSearch.propTypes = {
-  size: PropTypes.string,
-};
-
-HeaderSearch.defaultProps = {
-  size: 'large',
+  groupName: PropTypes.string,
 };
 
 export default HeaderSearch;

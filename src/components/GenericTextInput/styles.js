@@ -7,7 +7,6 @@ export default StyleSheet.create({
     height: 40,
     borderRadius: 5,
     backgroundColor: colors.inputBackground,
-    marginLeft: 10,
     marginVertical: 5,
     paddingVertical: 5,
     paddingHorizontal: 15,
@@ -15,7 +14,6 @@ export default StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: colors.inputDivider,
-    marginLeft: 10,
   },
   inputWrapper: {
     backgroundColor: colors.inputBackground,

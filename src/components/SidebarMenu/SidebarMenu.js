@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
   Image,
   TouchableOpacity,
   FlatList,
@@ -15,6 +16,7 @@ import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import styles from './styles';
+import { colors } from 'WeTime/src/config/styles';
 
 class SidebarMenu extends Component {
   constructor(props) {
@@ -26,13 +28,30 @@ class SidebarMenu extends Component {
         return this.props.groups.map((group, index) => {
             if(this.props.selectedGroupId && group._id == this.props.selectedGroupId){
                 return(
-                    <Text key={group._id}>
+                    <Text key={group._id} style={{
+                        fontSize: 20,
+                        textAlign: 'center',
+                        paddingTop: 5,
+                        paddingBottom: 5,
+                        borderWidth: 0.5,
+                        borderColor: '#a1a4aa',
+                        backgroundColor:colors.background,
+                        alignSelf: 'stretch',
+                      }}>
                         {group.groupName} --*
                     </Text>
                 );
             }
             return(
-                <Text key={group._id}>
+                <Text key={group._id} style={{
+                    fontSize: 20,
+                    textAlign: 'center',
+                    paddingTop: 5,
+                    paddingBottom: 5,
+                    borderWidth: 0.5,
+                    borderColor: '#a1a4aa',
+                    alignSelf: 'stretch',
+                  }}>
                     {group.groupName}
                 </Text>
             );
@@ -54,11 +73,13 @@ class SidebarMenu extends Component {
                 <Text>
                     MyTeams
                 </Text>
+                <ScrollView style={{alignSelf: 'stretch'}}>
                 {this.renderGroups()}
                 <Button text="Create a Team" onPress={()=>{
                     this.props.navigation.navigate('CreateGroup');
                     // this.props.navigation.navigate('NestedNavigator1', {}, NavigationActions.navigate({ routeName: 'screenB' }))
                 }}/>
+                </ScrollView>
             </View>
         );
     }else{

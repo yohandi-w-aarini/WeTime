@@ -5,8 +5,8 @@ import { createStackNavigator } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
-import SideMenu from 'react-native-side-menu';
-import SidebarMenu from 'WeTime/src/components/SidebarMenu';
+
+import IconFA from 'react-native-vector-icons/FontAwesome'
 
 const styles = StyleSheet.create({
   container: {
@@ -38,6 +38,9 @@ class GroupOverview extends Component {
           <Text style={styles.main}>
             Group name: {this.props.selectedGroup.groupName}
           </Text>
+          <Button text="Logout" onPress={()=>{
+            Meteor.logout();
+          }}/>
         </View>
     );
   }
@@ -63,6 +66,13 @@ groupOverviewContainer.navigationOptions = ({ navigation, screenProps }) => {
   if(param && param.groupName){
     return {
       title: param.groupName,
+      headerLeft: <IconFA
+                    name="bars"
+                    color="black"
+                    size={35}
+                    onPress={ () => {
+                      screenProps.rootNavigation.openDrawer();} }
+                  />
     };
   }else{
     return {
