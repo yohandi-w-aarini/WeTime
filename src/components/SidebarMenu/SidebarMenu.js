@@ -12,16 +12,50 @@ import {
   Alert
 } from 'react-native';
 import Meteor, { withTracker } from 'react-native-meteor';
+import { DrawerActions } from 'react-navigation';
 import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import styles from './styles';
 import { colors } from 'WeTime/src/config/styles';
 
+import DrawerEvents from 'WeTime/src/components/SidebarMenu/DrawerEvent';
+
 class SidebarMenu extends Component {
   constructor(props) {
     super(props)
+
+    this.subscribeToDrawerEvents = this.subscribeToDrawerEvents.bind(this);
+
+    // Subsribe to drawer events
+    DrawerEvents.subscribe(this.subscribeToDrawerEvents);
   }
+
+  
+    subscribeToDrawerEvents(event) {
+        if (event === 'DRAWER_CLOSED' && this.route) {
+            this.navigateAfterDrawerGetsClosed();
+
+            this.route = null;
+        }
+
+        // if (event === 'CLOSE_DRAWER_NOW' && this.route) {
+        //     this.props.navigation.dispatch(DrawerActions.closeDrawer());
+        // }
+    }
+
+    navigateAfterDrawerGetsClosed() {
+        const route = this.route;
+
+        setTimeout(() => this.props.navigation.navigate(route), 0);
+    }
+
+    navigate(route) {
+        this.route = route;
+        this.props.navigation.dispatch(DrawerActions.closeDrawer());
+        // this.props.navigation.navigate('CreateGroup',{closeDrawer:true});
+    }
+
 
   renderGroups(){
     if(this.props.groups && this.props.groups.length > 0){
@@ -75,10 +109,7 @@ class SidebarMenu extends Component {
                 </Text>
                 <ScrollView style={{alignSelf: 'stretch'}}>
                 {this.renderGroups()}
-                <Button text="Create a Team" onPress={()=>{
-                    this.props.navigation.navigate('CreateGroup');
-                    // this.props.navigation.navigate('NestedNavigator1', {}, NavigationActions.navigate({ routeName: 'screenB' }))
-                }}/>
+                <Button text="Create a Team" onPress={this.navigate.bind(this,'CreateGroup')}/>
                 </ScrollView>
             </View>
         );
