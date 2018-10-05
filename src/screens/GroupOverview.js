@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, StackActions, NavigationActions } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
@@ -92,8 +92,20 @@ class GroupOverviewStackWrapper extends React.Component {
   constructor(props)  {
       super(props);
   }
+  componentWillReceiveProps(nextProps){
+    if(nextProps.groups && nextProps.groups.length < 1){
+      const resetAction = StackActions.reset({
+        index: 0, 
+        key: null,
+        actions: [
+            NavigationActions.navigate({ routeName: 'Home' })
+        ],
+      });
+      nextProps.navigation.dispatch(resetAction);
+    }
+  }
   render() {
-    if(this.props.dataReady){
+    if(this.props.dataReady && this.props.groups && this.props.groups.length > 0){
       return (
         <GroupOverviewStack screenProps={{ rootNavigation: this.props.navigation, selectedGroup:this.props.selectedGroup }} />
       );

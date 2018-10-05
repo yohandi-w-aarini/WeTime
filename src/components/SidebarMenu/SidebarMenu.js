@@ -12,7 +12,7 @@ import {
   Alert
 } from 'react-native';
 import Meteor, { withTracker } from 'react-native-meteor';
-import { DrawerActions } from 'react-navigation';
+import { DrawerActions, StackActions } from 'react-navigation';
 import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
@@ -51,9 +51,13 @@ class SidebarMenu extends Component {
     }
 
     navigate(route) {
-        this.route = route;
-        this.props.navigation.dispatch(DrawerActions.closeDrawer());
-        // this.props.navigation.navigate('CreateGroup',{closeDrawer:true});
+        // this.route = route;
+        // this.props.navigation.dispatch(DrawerActions.closeDrawer());
+        // const pushAction = StackActions.push({
+        //     routeName: route,
+        //   });
+        // this.props.navigation.dispatch(pushAction);
+        this.props.navigation.navigate('CreateGroup',{closeDrawer:true});
     }
 
 

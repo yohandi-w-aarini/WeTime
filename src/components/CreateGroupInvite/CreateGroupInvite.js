@@ -3,7 +3,6 @@ import { StyleSheet, Dimensions, Text, View, Image, PermissionsAndroid } from 'r
 import Meteor from 'react-native-meteor';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import Contacts from 'react-native-contacts';
-import { AndroidBackHandler } from 'react-navigation-backhandler';
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 import { BackHandler } from "react-native";
 import {name as appName} from 'WeTime/app.json';
@@ -39,14 +38,14 @@ const styles = StyleSheet.create({
 });
 
 class CreateGroupInvite extends Component {
-  _didFocusSubscription;
-  _willBlurSubscription;
+  // _didFocusSubscription;
+  // _willBlurSubscription;
 
   constructor(props) {
     super(props);
-    this._didFocusSubscription = props.navigation.addListener('didFocus', payload =>
-      BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
-    );
+    // this._didFocusSubscription = props.navigation.addListener('didFocus', payload =>
+    //   BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+    // );
 
     this.mounted = false;
     this.state = {
@@ -81,22 +80,22 @@ class CreateGroupInvite extends Component {
     this.mounted = true;
   }
 
-  componentDidMount(){
-    this._willBlurSubscription = this.props.navigation.addListener('willBlur', payload =>
-      BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
-    );
-  }
+  // componentDidMount(){
+    // this._willBlurSubscription = this.props.navigation.addListener('willBlur', payload =>
+    //   BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+    // );
+  // }
 
-  onBackButtonPressAndroid = () => {
+  // onBackButtonPressAndroid = () => {
     // if (this.isSelectionModeEnabled()) {
     //   this.disableSelectionMode();
     //   return true;
     // } else {
     //   return false;
     // }
-    console.log("backButtonPressedCreateGRoupInvite");
-    return false;
-  };
+    // console.log("backButtonPressedCreateGRoupInvite");
+    // return false;
+  // };
 
   async componentDidMount(){
     await this.getContactSafe();
@@ -104,8 +103,8 @@ class CreateGroupInvite extends Component {
 
   componentWillUnmount() {
     this.mounted = false;
-    this._didFocusSubscription && this._didFocusSubscription.remove();
-    this._willBlurSubscription && this._willBlurSubscription.remove();
+    // this._didFocusSubscription && this._didFocusSubscription.remove();
+    // this._willBlurSubscription && this._willBlurSubscription.remove();
   }
 
   handleError = (error) => {

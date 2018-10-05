@@ -23,27 +23,28 @@ const DrawerScreens = createDrawerNavigator({
   GroupOverview: {
     screen: GroupOverview,
   },
+  CreateGroup: {
+    screen: CreateGroup,
+    navigationOptions: {
+      header: null,
+      drawerLockMode:'locked-closed'
+    }
+  }
 },
 {
   contentComponent: SidebarMenu,
   drawerWidth: 300
 });
 
-const CreateGroupStack = createStackNavigator({
-  CreateGroup: {
-    screen: CreateGroup,
-    navigationOptions: {
-      header: null,
-    }
-  }
-},
-{
-  headerMode: 'screen',
-});
-
 export const PrivateStack = createStackNavigator({
   Home: {
     screen: Home,
+    navigationOptions: {
+      header: null,
+    }
+  },
+  CreateGroup: {
+    screen: CreateGroup,
     navigationOptions: {
       header: null,
     }
@@ -54,44 +55,7 @@ export const PrivateStack = createStackNavigator({
       header: null,
     }
   },
-  CreateGroup: {
-    screen: CreateGroup,
-    navigationOptions: {
-      header: null,
-    }
-  }
 },
 {
   headerMode: 'screen',
 });
-
-const defaultGetStateForAction = PrivateStack.router.getStateForAction;
-
-PrivateStack.router.getStateForAction = (action, state) => {
-  // console.log("ACTION");
-  // console.log(action);
-  // console.log("STATE");
-  // console.log(state);
-  // console.log(action);
-  // if(action.type == "Navigation/COMPLETE_TRANSITION" && state && state.routes && state.routes.length > 0
-  // && state.routes[0].routeName == 'GroupHome'){
-  //   console.log("SET DRAWER CLOSE");
-  //   var currentParam = state.routes[(state.routes.length-1)].params;
-  //   if(currentParam){
-  //     currentParam.closeDrawer = true;
-  //   }else{
-  //     currentParam = {closeDrawer:true};
-  //   }
-  //   state.routes[(state.routes.length-1)].params = currentParam;
-  // }
-
-  if(action.type == "Navigation/DRAWER_CLOSED" && state && state.routes && state.routes.length > 0 && state.routes[(state.routes.length-1)].routeName != 'GroupHome'){
-    console.log("RETURN NULL");
-    return null;
-  }
-  if(action.type == "Navigation/DRAWER_CLOSED" && state && state.routes && state.routes.length > 0 && state.routes[(state.routes.length-1)].routeName == 'GroupHome'){
-    DrawerEvents.notify('DRAWER_CLOSED');
-  }
-  // console.log(state);
-  return defaultGetStateForAction(action, state);
-};

@@ -35,21 +35,9 @@ class Home extends Component {
     this.selectGroup(nextProps);
   }
 
-  // resetAction(props, selectedGroupIndex){
-  //   return StackActions.reset({
-  //     index: 0, 
-  //     key: null,
-  //     actions: [
-  //         NavigationActions.navigate({ routeName: 'PrivateStackDrawer',params:{groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser}})
-  //     ],
-  //   });
-  // }
-
   selectGroup(props){
     var selectedGroupIndex = 0;
     if(props.groups && props.groups.length > 0){
-      // this.props.navigation.dispatch(this.resetAction(props, selectedGroupIndex));
-      // this.props.navigation.replace('GroupHome', {}, NavigationActions.navigate({routeName:'GroupOverview', params:{groups:props.groups, selectedGroup:props.groups[selectedGroupIndex],currentUser:props.currentUser}}));
       this.props.navigation.replace('GroupHome', {selectedGroupId:props.groups[selectedGroupIndex]._id});
     }
   }
@@ -67,6 +55,9 @@ class Home extends Component {
               You don't currently have any team. Let's set one up!
             </Text>
             <Button text="Create a Team" onPress={() => this.props.navigation.navigate('CreateGroup', {navigation:this.props.navigation})}/>
+            <Button text="Logout" onPress={()=>{
+              Meteor.logout();
+            }}/>
           </View>
         );
       }else{
