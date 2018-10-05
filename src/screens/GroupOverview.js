@@ -41,6 +41,10 @@ class GroupOverview extends Component {
           <Button text="Logout" onPress={()=>{
             Meteor.logout();
           }}/>
+
+          <Button text="TEST" onPress={()=>{
+            Meteor.call('test.function.rn');
+          }}/>
         </View>
     );
   }

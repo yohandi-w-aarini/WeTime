@@ -244,7 +244,9 @@ class CreateGroupInvite extends Component {
                 contactPermission={this.state.contactPermission}
                 contactLoading={this.state.contactLoading}
                 press={this.press.bind(this)}
-                retry={()=>{this.getContactSafe()}}/>;
+                retry={()=>{this.getContactSafe()}}
+                navigation={this.props.navigation}
+                screenProps={this.props.screenProps}/>;
               case 'email':
                 return <View style={[{ backgroundColor: '#673ab7' }]} />;
               default:
