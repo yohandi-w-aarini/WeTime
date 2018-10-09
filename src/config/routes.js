@@ -9,7 +9,6 @@ import CreateGroup from 'WeTime/src/screens/CreateGroup';
 import GroupOverview from 'WeTime/src/screens/GroupOverview';
 
 import SidebarMenu from 'WeTime/src/components/SidebarMenu';
-import DrawerEvents from 'WeTime/src/components/SidebarMenu/DrawerEvent';
 
 export const AuthStack = createStackNavigator({
   SignIn: {

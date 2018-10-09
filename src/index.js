@@ -64,6 +64,7 @@ class App extends React.Component {
   }
 
   setInternetState(state){
+    //start/stop timer based on connection state to the server
     if(this.state.hasInternet != state){
       this.setState({hasInternet: state});
     }
@@ -114,6 +115,7 @@ class App extends React.Component {
       else if((status.connected === false || loggingIn) && this.state.elapsed >= 5000){
         return <ServerUnreachable/>
       }
+      //load the appropriate routes based on user's login status
       else if (user) {
         return <PrivateStack />;
       }else{

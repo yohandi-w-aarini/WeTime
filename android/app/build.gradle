@@ -168,6 +168,7 @@ dependencies {
   implementation 'com.google.firebase:firebase-core:16.0.1'
   implementation 'com.google.android.gms:play-services-base:15.0.1'
   // RNFirebase optional dependencies
+  implementation 'com.google.firebase:firebase-dynamic-links:16.0.1'
   implementation 'com.google.firebase:firebase-invites:16.0.1'
   implementation 'com.google.firebase:firebase-messaging:17.1.0'
   implementation 'com.facebook.react:react-native:+'

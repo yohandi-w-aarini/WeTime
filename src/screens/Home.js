@@ -36,9 +36,15 @@ class Home extends Component {
   }
 
   selectGroup(props){
-    var selectedGroupIndex = 0;
     if(props.groups && props.groups.length > 0){
-      this.props.navigation.replace('GroupHome', {selectedGroupId:props.groups[selectedGroupIndex]._id});
+      var selectedGroupId;
+      if(props.currentUser && props.currentUser.lastSelectedGroupId && 
+        props.groups.find((g)=>{return g._id == props.currentUser.lastSelectedGroupId})){
+          selectedGroupId = props.currentUser.lastSelectedGroupId;
+      }else{
+        selectedGroupId = props.groups[0]._id;
+      }
+      this.props.navigation.replace('GroupHome', {selectedGroupId:selectedGroupId});
     }
   }
 
@@ -104,8 +110,9 @@ var homeContainer = withTracker((props) => {
     });
 
     if(handle.ready()){
-        groups =  Meteor.collection('group').find();
-        dataReady = true;
+      //sort group descending on date last updated and date created
+      groups =  Meteor.collection('group').find({},{sort: { updatedAt: -1, createdAt:-1 } });
+      dataReady = true;
     }
   }
   return {

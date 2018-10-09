@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { createStackNavigator, StackActions, NavigationActions } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
+import firebase from 'react-native-firebase';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 
@@ -29,6 +30,20 @@ const styles = StyleSheet.create({
 });
 
 class GroupOverview extends Component {
+  generateDynamicLink(){
+    const link = 
+    new firebase.links.DynamicLink('https://weq.io?param1=foo&param2=bar', 'wetime.page.link')
+      .android.setPackageName('io.weq.wetime')
+      .ios.setBundleId('io.weq.wetime');
+
+    firebase.links()
+        .createShortDynamicLink(link)
+        .then((url) => {
+          console.log("url created");
+          console.log(url);
+        });
+  }
+
   render(){
     return(
         <View style={styles.container}>
@@ -40,6 +55,10 @@ class GroupOverview extends Component {
           </Text>
           <Button text="Logout" onPress={()=>{
             Meteor.logout();
+          }}/>
+
+          <Button text="Generate dynamic links" onPress={()=>{
+            this.generateDynamicLink();
           }}/>
         </View>
     );
