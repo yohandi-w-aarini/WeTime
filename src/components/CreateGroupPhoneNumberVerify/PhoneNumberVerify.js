@@ -5,7 +5,6 @@ import Meteor from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
-import CreateGroupInvite from 'WeTime/src/components/CreateGroupInvite';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
@@ -58,7 +57,26 @@ class CreateGroupName extends Component {
             loading:false
           });
         }else{
-          //get back to parent
+          //create group, send sms invite and return to parent
+        
+          for(var i = 0; i<this.state.selectedContactList.length; i++){
+            var contact = this.state.selectedContactList[i];
+            if(contact.phoneNumbers && contact.phoneNumbers.length > 0){
+              var mobile = contact.phoneNumbers.find((number)=>{return number.label == 'mobile'});
+              if(mobile && mobile.number){
+                var number = mobile.number.replace(/\s/g, '');
+                //check for E.164 phone number format
+                if(number.substr(0,1) != '+'){
+                  //use user's verified phone number country code (a safe assumption);
+                  //converts e.g. "06xxxxxxxx" to "+316xxxxxxxx"
+                  number = "+"+this.props.currentUser.mobile[0].countryCode+number.substr(1, number.length);
+                }
+                sendSmsInvite(number);
+              }
+            };
+          }
+  
+  
           const resetAction = StackActions.reset({
             index: 0, 
             key: null,

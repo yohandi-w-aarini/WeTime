@@ -4,7 +4,6 @@ import Meteor from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
-import CreateGroupInvite from 'WeTime/src/components/CreateGroupInvite';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
 

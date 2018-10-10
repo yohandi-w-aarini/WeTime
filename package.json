@@ -27,7 +27,7 @@
     "react": "16.5",
     "react-native": "0.57.0",
     "react-native-contacts": "^2.2.3",
-    "react-native-firebase": "^4.3.8",
+    "react-native-firebase": "^5.0.0",
     "react-native-keyboard-spacer": "^0.4.1",
     "react-native-meteor": "^1.4.0",
     "react-native-side-menu": "^1.1.3",

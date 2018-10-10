@@ -4,7 +4,6 @@ import Meteor from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
-import CreateGroupInvite from 'WeTime/src/components/CreateGroupInvite';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
@@ -15,7 +14,14 @@ class CreateGroupName extends Component {
       loading:undefined,
       countryCode: '',
       number: '',
+      selectedContactList:[]
     };
+  }
+
+  componentDidMount(){
+    this.setState({
+      selectedContactList:this.props.navigation.getParam('selectedContactList', [])
+    });
   }
 
   render() {
@@ -56,9 +62,9 @@ class CreateGroupName extends Component {
             Meteor.call('send.verification.sms',this.state.countryCode,this.state.number, (error, response)=>{
               if(error){
                 console.log(error);
-                this.setState({loading:false});
               }
-              this.props.navigation.navigate('VerifyNumber', {number:this.state.number,countryCode:this.state.countryCode});
+              this.setState({loading:false});
+              this.props.navigation.navigate('VerifyNumber', {number:this.state.number,countryCode:this.state.countryCode,selectedContactList:this.state.selectedContactList});
             });
           }}/>
         </View>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Dimensions, Text, View, Image, PermissionsAndroid } from 'react-native';
-import Meteor from 'react-native-meteor';
+import { NavigationActions, StackActions } from 'react-navigation';
+import Meteor, {withTracker} from 'react-native-meteor';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import Contacts from 'react-native-contacts';
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
@@ -12,6 +13,7 @@ import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTex
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
 import ContactTab from 'WeTime/src/components/ContactTab';
 import ContactListSelected from 'WeTime/src/components/ContactListSelected';
+import { sendSmsInvite } from 'WeTime/src/components/Utils';
 
 
 const window = Dimensions.get('window');
@@ -38,15 +40,9 @@ const styles = StyleSheet.create({
 });
 
 class CreateGroupInvite extends Component {
-  // _didFocusSubscription;
-  // _willBlurSubscription;
 
   constructor(props) {
     super(props);
-    // this._didFocusSubscription = props.navigation.addListener('didFocus', payload =>
-    //   BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
-    // );
-
     this.mounted = false;
     this.state = {
       contactPermission:undefined,
@@ -62,40 +58,9 @@ class CreateGroupInvite extends Component {
     };
   }
 
-  static navigationOptions = ({ navigation }) => {
-    var paramGroupName = navigation.getParam('groupName', '');
-    if(paramGroupName){
-      return {
-        headerTitle: <HeaderSearch groupName={paramGroupName} />
-      };
-    }else{
-      return{
-        header: null,
-      }
-    }
-    
-  };
-
   componentWillMount() {
     this.mounted = true;
   }
-
-  // componentDidMount(){
-    // this._willBlurSubscription = this.props.navigation.addListener('willBlur', payload =>
-    //   BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
-    // );
-  // }
-
-  // onBackButtonPressAndroid = () => {
-    // if (this.isSelectionModeEnabled()) {
-    //   this.disableSelectionMode();
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-    // console.log("backButtonPressedCreateGRoupInvite");
-    // return false;
-  // };
 
   async componentDidMount(){
     await this.getContactSafe();
@@ -103,8 +68,6 @@ class CreateGroupInvite extends Component {
 
   componentWillUnmount() {
     this.mounted = false;
-    // this._didFocusSubscription && this._didFocusSubscription.remove();
-    // this._willBlurSubscription && this._willBlurSubscription.remove();
   }
 
   handleError = (error) => {
@@ -197,6 +160,46 @@ class CreateGroupInvite extends Component {
     }
   }
 
+  sendInvitation(){
+     //check if number already verified
+     if(this.props.currentUser && this.props.currentUser.mobile && this.props.currentUser.mobile.length > 0 &&
+      this.props.currentUser.mobile[0].countryCode && this.props.currentUser.mobile[0].number && this.props.currentUser.mobile[0].verified){
+        //skip phone verification
+        //create group, send sms invite and return to parent
+        
+        for(var i = 0; i<this.state.selectedContactList.length; i++){
+          var contact = this.state.selectedContactList[i];
+          if(contact.phoneNumbers && contact.phoneNumbers.length > 0){
+            var mobile = contact.phoneNumbers.find((number)=>{return number.label == 'mobile'});
+            if(mobile && mobile.number){
+              var number = mobile.number.replace(/\s/g, '');
+              //check for E.164 phone number format
+              if(number.substr(0,1) != '+'){
+                //use user's verified phone number country code (a safe assumption);
+                //converts e.g. "06xxxxxxxx" to "+316xxxxxxxx"
+                number = "+"+this.props.currentUser.mobile[0].countryCode+number.substr(1, number.length);
+              }
+              sendSmsInvite(number);
+            }
+          };
+        }
+
+        const resetAction = StackActions.reset({
+          index: 0, 
+          key: null,
+          actions: [
+              NavigationActions.navigate({ routeName: 'Home' })
+          ],
+        });
+        if(this.props.screenProps && this.props.screenProps.rootNavigation){
+          this.props.screenProps.rootNavigation.dispatch(resetAction);
+        }
+    }else{
+      //do phone verification
+      this.props.navigation.navigate('SubmitNumber',{selectedContactList:this.state.selectedContactList});
+    }
+  }
+
   press = (hey) => {
     this.state.contactList.map((item) => {
       if (item.recordID === hey.recordID) {
@@ -216,50 +219,74 @@ class CreateGroupInvite extends Component {
   }
 
   render() {
-    return(
-      <View style={{flex: 1}}>
-        {(this.state.selectedContactList.length > 0)
-          ? (
-            <View style={styles.containerFooter}>
-              <View style={{
-                flex: 3,
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                alignContent: 'center'
-              }}>
-              <ContactListSelected contactsSelected={this.state.selectedContactList} press={this.press.bind(this)}/>
+    if(this.props.currentUser){
+      return(
+        <View style={{flex: 1}}>
+          {(this.state.selectedContactList.length > 0)
+            ? (
+              <View style={styles.containerFooter}>
+                <View style={{
+                  flex: 3,
+                  alignItems: 'flex-start',
+                  justifyContent: 'center',
+                  alignContent: 'center'
+                }}>
+                <ContactListSelected contactsSelected={this.state.selectedContactList} press={this.press.bind(this)}/>
+                </View>
               </View>
-            </View>
-          )
-          : null
-        }
-        <TabView
-          style={{flex: 1}}
-          navigationState={this.state}
-          renderScene={(navigator) => {
-            switch (navigator.route.key) {
-              case 'contactList':
-                return <ContactTab contacts={this.state.contactList}
-                contactsSelected={this.state.selectedContactList}
-                contactPermission={this.state.contactPermission}
-                contactLoading={this.state.contactLoading}
-                press={this.press.bind(this)}
-                retry={()=>{this.getContactSafe()}}
-                navigation={this.props.navigation}
-                screenProps={this.props.screenProps}/>;
-              case 'email':
-                return <View style={[{ backgroundColor: '#673ab7' }]} />;
-              default:
-                return null;
+            )
+            : null
+          }
+          <TabView
+            style={{flex: 1}}
+            navigationState={this.state}
+            renderScene={(navigator) => {
+              switch (navigator.route.key) {
+                case 'contactList':
+                  return <ContactTab contacts={this.state.contactList}
+                  contactsSelected={this.state.selectedContactList}
+                  contactPermission={this.state.contactPermission}
+                  contactLoading={this.state.contactLoading}
+                  press={this.press.bind(this)}
+                  retry={()=>{this.getContactSafe()}}
+                  sendInvitation={this.sendInvitation.bind(this)}/>;
+                case 'email':
+                  return <View style={[{ backgroundColor: '#673ab7' }]} />;
+                default:
+                  return null;
+                }
               }
             }
-          }
-          onIndexChange={index => this.setState({ index })}
-          initialLayout={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height }}
-        />
-      </View>
-    );
+            onIndexChange={index => this.setState({ index })}
+            initialLayout={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height }}
+          />
+        </View>
+      );
+    }
+    else{
+      return (null);
+    }
   }
 }
 
-export default CreateGroupInvite;
+const createGroupInviteContainer = withTracker((props) => {
+  var user = Meteor.user();
+  return {
+      currentUser: user,
+  };
+})(CreateGroupInvite);
+
+createGroupInviteContainer.navigationOptions = ({ navigation }) => {
+  var paramGroupName = navigation.getParam('groupName', '');
+  if(paramGroupName){
+    return {
+      headerTitle: <HeaderSearch groupName={paramGroupName} />
+    };
+  }else{
+    return{
+      header: null,
+    }
+  }
+};
+
+export default createGroupInviteContainer;

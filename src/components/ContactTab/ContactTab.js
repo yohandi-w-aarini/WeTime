@@ -10,7 +10,6 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import { NavigationActions, StackActions } from 'react-navigation';
 import Button from 'WeTime/src/components/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome'
@@ -80,21 +79,7 @@ export default class ContactTab extends Component {
             bottom: 30,
             backgroundColor: '#1abc9c',
           }} onPress={() => {
-           
-            //go to phone number verification
-            //OR
-            //get back to parent
-            this.props.navigation.navigate('SubmitNumber', {number:this.state.number});
-            // const resetAction = StackActions.reset({
-            //   index: 0, 
-            //   key: null,
-            //   actions: [
-            //       NavigationActions.navigate({ routeName: 'Home' })
-            //   ],
-            // });
-            // if(this.props.screenProps && this.props.screenProps.rootNavigation){
-            //   this.props.screenProps.rootNavigation.dispatch(resetAction);
-            // }
+            this.props.sendInvitation();
           }}>
 
           <IconFA
@@ -115,6 +100,7 @@ export default class ContactTab extends Component {
 ContactTab.propTypes = {
   contacts: PropTypes.array.isRequired,
   contactsSelected: PropTypes.array.isRequired,
+  sendInvitation: PropTypes.func.isRequired,
   press: PropTypes.func.isRequired,
 };
 

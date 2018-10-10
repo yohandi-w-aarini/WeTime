@@ -30,20 +30,6 @@ const styles = StyleSheet.create({
 });
 
 class GroupOverview extends Component {
-  generateDynamicLink(){
-    const link = 
-    new firebase.links.DynamicLink('https://weq.io?param1=foo&param2=bar', 'wetime.page.link')
-      .android.setPackageName('io.weq.wetime')
-      .ios.setBundleId('io.weq.wetime');
-
-    firebase.links()
-        .createShortDynamicLink(link)
-        .then((url) => {
-          console.log("url created");
-          console.log(url);
-        });
-  }
-
   render(){
     return(
         <View style={styles.container}>
@@ -55,10 +41,6 @@ class GroupOverview extends Component {
           </Text>
           <Button text="Logout" onPress={()=>{
             Meteor.logout();
-          }}/>
-
-          <Button text="Generate dynamic links" onPress={()=>{
-            this.generateDynamicLink();
           }}/>
         </View>
     );
