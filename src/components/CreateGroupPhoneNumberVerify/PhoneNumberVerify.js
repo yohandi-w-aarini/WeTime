@@ -64,14 +64,7 @@ class CreateGroupName extends Component {
             if(contact.phoneNumbers && contact.phoneNumbers.length > 0){
               var mobile = contact.phoneNumbers.find((number)=>{return number.label == 'mobile'});
               if(mobile && mobile.number){
-                var number = mobile.number.replace(/\s/g, '');
-                //check for E.164 phone number format
-                if(number.substr(0,1) != '+'){
-                  //use user's verified phone number country code (a safe assumption);
-                  //converts e.g. "06xxxxxxxx" to "+316xxxxxxxx"
-                  number = "+"+this.props.currentUser.mobile[0].countryCode+number.substr(1, number.length);
-                }
-                sendSmsInvite(number);
+                sendSmsInvite(this.state.countryCode,mobile.number);
               }
             };
           }

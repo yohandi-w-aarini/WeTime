@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Meteor, { withTracker } from 'react-native-meteor';
 import { NetInfo } from 'react-native';
+import firebase from 'react-native-firebase';
 
 import { AuthStack, PrivateStack } from 'WeTime/src/config/routes';
 import Loading from 'WeTime/src/components/Loading';
@@ -21,11 +22,14 @@ class App extends React.Component {
       elapsed: 0
     };
 
+    this.appLaunchedByLink;
     this.startTime = new Date();
   }
 
   async componentDidMount(){
     var connectionInfo = await NetInfo.getConnectionInfo();
+
+    this.appLaunchedByLink = await firebase.links().getInitialLink();
 
     if(connectionInfo){
       if(connectionInfo.type == "none"){
@@ -119,7 +123,7 @@ class App extends React.Component {
       else if (user) {
         return <PrivateStack />;
       }else{
-        return <AuthStack />;
+        return <AuthStack screenProps={{ appLaunchedByLink: this.appLaunchedByLink }}/>;
       }
     }else{
       return(
