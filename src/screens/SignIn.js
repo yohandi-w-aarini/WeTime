@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { LayoutAnimation, StyleSheet, Dimensions, Text, View, Image } from 'react-native';
+import { LayoutAnimation, StyleSheet, Dimensions, Text, View, Image, TouchableOpacity } from 'react-native';
 import Meteor, { Accounts, withTracker } from 'react-native-meteor';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 
@@ -7,8 +7,10 @@ import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
 import logoImage from 'WeTime/src/images/wetime.logo.png';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 var URLSearchParams = require('url-search-params');
+var URL = require('url');
 
 const window = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -59,10 +61,14 @@ class SignIn extends Component {
 
     this.mounted = false;
     this.state = {
+      firstName:'',
+      lastName:'',
       email: '',
       password: '',
       confirmPassword: '',
       confirmPasswordVisible: false,
+      consentTerms:false,
+      consentSubs:false,
       showSignUp: false,
       error: null,
     };
@@ -94,7 +100,7 @@ class SignIn extends Component {
   }
 
   validInput = (overrideConfirm) => {
-    const { email, password, confirmPassword, confirmPasswordVisible } = this.state;
+    const { email, password, confirmPassword, confirmPasswordVisible, consentTerms } = this.state;
     let valid = true;
 
     if (email.length === 0 || password.length === 0) {
@@ -107,6 +113,11 @@ class SignIn extends Component {
       valid = false;
     }
 
+    if (confirmPasswordVisible && !consentTerms) {
+      this.handleError('You need to accept our terms to proceed');
+      valid = false;
+    }
+    
     if (valid) {
       this.handleError(null);
     }
@@ -126,17 +137,32 @@ class SignIn extends Component {
   }
 
   handleCreateAccount = () => {
-    const { email, password, confirmPasswordVisible } = this.state;
+    const { email, password, confirmPasswordVisible, firstName, lastName, consentSubs, consentTerms } = this.state;
 
     if (confirmPasswordVisible && this.validInput()) {
-      Accounts.createUser({ email, password }, (err) => {
-        if (err) {
-          this.handleError(err.reason);
-        } else {
-          // hack because react-native-meteor doesn't login right away after sign in
-          this.handleSignIn();
-        }
-      });
+      //check if user is 'trial' user that is invited via sms
+      if(this.props.currentUser && !(this.props.currentUser.emails && this.props.currentUser.emails.length > 0 && this.props.currentUser.emails[0].address)){
+        var data =  {userId: this.props.currentUser && this.props.currentUser._id, firstName: firstName , lastName: lastName, 
+          registerEmail:registerEmail, registerPassword:registerPassword, consentSubs:consentSubs, 
+          consentTerms:consentTerms};
+
+        Meteor.call('signUpInvited', data , (err, result) => {
+          if(err){
+            console.log(err)
+          }else{
+            this.handleSignIn();
+          }
+        });
+      }else{
+        Accounts.createUser({ email, password }, (err) => {
+          if (err) {
+            this.handleError(err.reason);
+          } else {
+            // hack because react-native-meteor doesn't login right away after sign in
+            this.handleSignIn();
+          }
+        });
+      }
     } else {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
       this.setState({ confirmPasswordVisible: true });
@@ -179,9 +205,24 @@ class SignIn extends Component {
           }
   
           <InputWrapper>
+            {this.state.confirmPasswordVisible ?
+              <GenericTextInput
+                placeholder="first name"
+                onChangeText={(firstName) => this.setState({ firstName })}
+              />
+            : null}
+
+            {this.state.confirmPasswordVisible ?
+              <GenericTextInput
+                placeholder="last name"
+                onChangeText={(lastName) => this.setState({ lastName })}
+                borderTop
+              />
+            : null}
             <GenericTextInput
               placeholder="email address"
               onChangeText={(email) => this.setState({ email })}
+              borderTop
             />
             <GenericTextInput
               placeholder="password"
@@ -197,6 +238,38 @@ class SignIn extends Component {
                 borderTop
               />
             : null}
+
+            {this.state.confirmPasswordVisible ?
+              <TouchableOpacity style={{
+                flexDirection: 'row',
+              }} onPress={() => {
+                this.setState({ consentTerms:!this.state.consentTerms });
+              }}>
+                <View style={{
+                  flex: 3,
+                  alignItems: 'flex-start',
+                  justifyContent: 'center'
+                }}>
+                  <Text>I accept the terms and agreements of WeTime</Text>
+                </View>
+                <View style={{
+                  flex: 1,
+                  alignItems: 'flex-end',
+                  justifyContent: 'center'
+                }}>
+                  
+                {this.state.consentTerms
+                  ? (
+                    <Icon name="ios-checkbox" size={30}></Icon>
+                  )
+                  : (
+                    <Icon name="ios-square-outline" size={30}></Icon>
+                  )}
+                </View>
+              </TouchableOpacity>
+            : null}
+
+            
           </InputWrapper>
   
           <View style={styles.error}>
@@ -230,14 +303,14 @@ export default withTracker((props) => {
   var dataReady;
   var user;
   if(props.screenProps && props.screenProps.appLaunchedByLink){
-    console.log(props.screenProps.appLaunchedByLink);
-    var urlParams = new URLSearchParams(props.screenProps.appLaunchedByLink);
+    const url = URL.parse(props.screenProps.appLaunchedByLink);
+    var urlParams = new URLSearchParams(url.search);
     var msisdn = urlParams.get('msisdn');
     var countryCode = urlParams.get('countryCode');
 
-    //convert msisdn back to number
+    //convert msisdn back to number by replaciing the country code with 0
     //the  +1 for the countryCode length is to compensate for the starting "+" symbol
-    var number = msisdn.substr(0, countryCode.length+1);
+    var number = "0"+msisdn.substr(countryCode.length+1, msisdn.length);
 
     var handle = Meteor.subscribe('users',{$and : [ {"mobile.countryCode" : countryCode  }, { "mobile.number" : number}]}, {}, {
       onError: function (error) {
@@ -246,7 +319,7 @@ export default withTracker((props) => {
     });
     
     if(handle.ready()){
-      user = Meteor.users.findOne({$and : [ {"mobile.countryCode" : countryCode  }, { "mobile.number" : number}]});
+      user = Meteor.collection('users').findOne({$and : [ {"mobile.countryCode" : countryCode  }, { "mobile.number" : number}]});
       dataReady = true;
     }
   }else{

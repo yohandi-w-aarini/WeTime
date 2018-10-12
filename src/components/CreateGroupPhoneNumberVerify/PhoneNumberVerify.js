@@ -58,16 +58,11 @@ class CreateGroupName extends Component {
           });
         }else{
           //create group, send sms invite and return to parent
-        
-          for(var i = 0; i<this.state.selectedContactList.length; i++){
-            var contact = this.state.selectedContactList[i];
-            if(contact.phoneNumbers && contact.phoneNumbers.length > 0){
-              var mobile = contact.phoneNumbers.find((number)=>{return number.label == 'mobile'});
-              if(mobile && mobile.number){
-                sendSmsInvite(this.state.countryCode,mobile.number);
-              }
-            };
-          }
+
+          console.log("GROUPNAME");
+          console.log(this.props.navigation.getParam('groupName', ''));
+
+          createGroup(this.state.countryCode,this.state.selectedContactList);
   
   
           const resetAction = StackActions.reset({

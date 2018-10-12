@@ -13,7 +13,7 @@ import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTex
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
 import ContactTab from 'WeTime/src/components/ContactTab';
 import ContactListSelected from 'WeTime/src/components/ContactListSelected';
-import { sendSmsInvite } from 'WeTime/src/components/Utils';
+import { createGroup } from 'WeTime/src/components/Utils';
 
 
 const window = Dimensions.get('window');
@@ -166,16 +166,11 @@ class CreateGroupInvite extends Component {
       this.props.currentUser.mobile[0].countryCode && this.props.currentUser.mobile[0].number && this.props.currentUser.mobile[0].verified){
         //skip phone verification
         //create group, send sms invite and return to parent
-        
-        for(var i = 0; i<this.state.selectedContactList.length; i++){
-          var contact = this.state.selectedContactList[i];
-          if(contact.phoneNumbers && contact.phoneNumbers.length > 0){
-            var mobile = contact.phoneNumbers.find((number)=>{return number.label == 'mobile'});
-            if(mobile && mobile.number){
-              sendSmsInvite(this.props.currentUser.mobile[0].countryCode,mobile.number);
-            }
-          };
-        }
+
+        console.log("GROUPNAME");
+        console.log(this.props.navigation.getParam('groupName', ''));
+
+        createGroup(this.props.currentUser.mobile[0],this.state.selectedContactList);
 
         const resetAction = StackActions.reset({
           index: 0, 
