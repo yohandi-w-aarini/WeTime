@@ -143,7 +143,7 @@ class SignIn extends Component {
       //check if user is 'trial' user that is invited via sms
       if(this.props.currentUser && !(this.props.currentUser.emails && this.props.currentUser.emails.length > 0 && this.props.currentUser.emails[0].address)){
         var data =  {userId: this.props.currentUser && this.props.currentUser._id, firstName: firstName , lastName: lastName, 
-          registerEmail:registerEmail, registerPassword:registerPassword, consentSubs:consentSubs, 
+          registerEmail:email, registerPassword:password, consentSubs:consentSubs, 
           consentTerms:consentTerms};
 
         Meteor.call('signUpInvited', data , (error, result) => {
@@ -308,7 +308,7 @@ export default withTracker((props) => {
     var msisdn = urlParams.get('msisdn');
     var countryCode = urlParams.get('countryCode');
 
-    //convert msisdn back to number by replaciing the country code with 0
+    //convert msisdn back to number by replacing the country code with 0
     //the  +1 for the countryCode length is to compensate for the starting "+" symbol
     var number = "0"+msisdn.substr(countryCode.length+1, msisdn.length);
 

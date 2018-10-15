@@ -159,7 +159,10 @@ export default withTracker((props) => {
           if(selectedGroupId){
             selectedGroup = groups.find((gr)=>{
               return gr._id == selectedGroupId;
-            })
+            });
+            if(!selectedGroup){
+              selectedGroup = groups[0];
+            }
           }
           dataReady = true;
       }
