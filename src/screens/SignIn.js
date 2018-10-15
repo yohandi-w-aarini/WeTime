@@ -128,9 +128,9 @@ class SignIn extends Component {
   handleSignIn = () => {
     if (this.validInput(true)) {
       const { email, password } = this.state;
-      Meteor.loginWithPassword(email, password, (err) => {
-        if (err) {
-          this.handleError(err.reason);
+      Meteor.loginWithPassword(email, password, (error) => {
+        if (error) {
+          this.handleError(error.reason);
         }
       });
     }
@@ -146,17 +146,17 @@ class SignIn extends Component {
           registerEmail:registerEmail, registerPassword:registerPassword, consentSubs:consentSubs, 
           consentTerms:consentTerms};
 
-        Meteor.call('signUpInvited', data , (err, result) => {
-          if(err){
-            console.log(err)
+        Meteor.call('signUpInvited', data , (error, result) => {
+          if(error){
+            console.log(error)
           }else{
             this.handleSignIn();
           }
         });
       }else{
-        Accounts.createUser({ email, password }, (err) => {
-          if (err) {
-            this.handleError(err.reason);
+        Accounts.createUser({ email, password }, (error) => {
+          if (error) {
+            this.handleError(error.reason);
           } else {
             // hack because react-native-meteor doesn't login right away after sign in
             this.handleSignIn();

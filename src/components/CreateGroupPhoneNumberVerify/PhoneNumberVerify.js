@@ -5,6 +5,7 @@ import Meteor from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';
 import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTextInput';
+import { generateCreateGroupData } from 'WeTime/src/components/Utils';
 
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
@@ -23,7 +24,8 @@ class CreateGroupName extends Component {
   componentDidMount(){
     this.setState({
       countryCode:this.props.navigation.getParam('countryCode', ''),
-      number:this.props.navigation.getParam('number', '')
+      number:this.props.navigation.getParam('number', ''),
+      groupName:this.props.navigation.getParam('groupName', '')
     });
   }
 
@@ -49,7 +51,7 @@ class CreateGroupName extends Component {
         error:undefined,
         loading:true
       });
-      Meteor.call('verify.number',this.state.countryCode,this.state.number, this.state.verification, (error, response)=>{
+      Meteor.call('verify.number',this.state.countryCode,this.state.number, this.state.verification, async (error, response)=>{
         if(error){
           console.log(error);
           this.setState({
@@ -58,23 +60,29 @@ class CreateGroupName extends Component {
           });
         }else{
           //create group, send sms invite and return to parent
-
-          console.log("GROUPNAME");
-          console.log(this.props.navigation.getParam('groupName', ''));
-
-          createGroup(this.state.countryCode,this.state.selectedContactList);
-  
-  
-          const resetAction = StackActions.reset({
-            index: 0, 
-            key: null,
-            actions: [
-                NavigationActions.navigate({ routeName: 'Home' })
-            ],
+          var arrayEmails = []
+          var arrayNumbers = await generateCreateGroupData(this.state.countryCode,this.state.selectedContactList);
+          
+          Meteor.call('createGroupWeTime', this.state.groupName,arrayEmails, arrayNumbers, (error, result) => {
+            if(error){
+              console.log(error)
+              this.setState({
+                error:error,
+                loading:false
+              });
+            }else{
+              const resetAction = StackActions.reset({
+                index: 0, 
+                key: null,
+                actions: [
+                    NavigationActions.navigate({ routeName: 'Home' })
+                ],
+              });
+              if(this.props.screenProps && this.props.screenProps.rootNavigation){
+                this.props.screenProps.rootNavigation.dispatch(resetAction);
+              }
+            }
           });
-          if(this.props.screenProps && this.props.screenProps.rootNavigation){
-            this.props.screenProps.rootNavigation.dispatch(resetAction);
-          }
         }
       });
     }

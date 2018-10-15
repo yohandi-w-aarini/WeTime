@@ -13,7 +13,7 @@ import GenericTextInput, { InputWrapper } from 'WeTime/src/components/GenericTex
 import HeaderSearch from 'WeTime/src/components/HeaderSearch';
 import ContactTab from 'WeTime/src/components/ContactTab';
 import ContactListSelected from 'WeTime/src/components/ContactListSelected';
-import { createGroup } from 'WeTime/src/components/Utils';
+import { generateCreateGroupData } from 'WeTime/src/components/Utils';
 
 
 const window = Dimensions.get('window');
@@ -50,6 +50,7 @@ class CreateGroupInvite extends Component {
       contactLoading:false,
       error: null,
       index: 0,
+      creatingGroup:false,
       routes: [
         { key: 'contactList', title: 'Contact List' },
         { key: 'email', title: 'Email' },
@@ -99,8 +100,8 @@ class CreateGroupInvite extends Component {
 
   getContact(){
     this.setState({ contactLoading:true });
-    Contacts.getAll((err, contacts) => {
-      if (err) throw err;
+    Contacts.getAll((error, contacts) => {
+      if (error) throw error;
   
       // contacts returned
       this.setState({ 
@@ -139,8 +140,8 @@ class CreateGroupInvite extends Component {
       } else {
         this.setState({ contactPermission:false });
       }
-    } catch (err) {
-      console.warn(err)
+    } catch (error) {
+      console.warn(error)
     }
   }
 
@@ -154,34 +155,42 @@ class CreateGroupInvite extends Component {
       } else {
         return false;
       }
-    } catch (err) {
-      console.warn(err)
+    } catch (error) {
+      console.warn(error)
       return undefined;
     }
   }
 
-  sendInvitation(){
+  async sendInvitation(){
      //check if number already verified
      if(this.props.currentUser && this.props.currentUser.mobile && this.props.currentUser.mobile.length > 0 &&
       this.props.currentUser.mobile[0].countryCode && this.props.currentUser.mobile[0].number && this.props.currentUser.mobile[0].verified){
         //skip phone verification
         //create group, send sms invite and return to parent
 
-        console.log("GROUPNAME");
-        console.log(this.props.navigation.getParam('groupName', ''));
+        this.setState({ creatingGroup:true });
 
-        createGroup(this.props.currentUser.mobile[0],this.state.selectedContactList);
-
-        const resetAction = StackActions.reset({
-          index: 0, 
-          key: null,
-          actions: [
-              NavigationActions.navigate({ routeName: 'Home' })
-          ],
+        var groupName = this.props.navigation.getParam('groupName', '');
+        var arrayEmails = []
+        var arrayNumbers = await generateCreateGroupData(this.props.currentUser.mobile[0].countryCode,this.state.selectedContactList);
+        
+        Meteor.call('createGroupWeTime', groupName, arrayEmails, arrayNumbers, (error, result) => {
+          if(error){
+            console.log(error)
+            this.setState({ creatingGroup:false });
+          }else{
+            const resetAction = StackActions.reset({
+              index: 0, 
+              key: null,
+              actions: [
+                  NavigationActions.navigate({ routeName: 'Home' })
+              ],
+            });
+            if(this.props.screenProps && this.props.screenProps.rootNavigation){
+              this.props.screenProps.rootNavigation.dispatch(resetAction);
+            }
+          }
         });
-        if(this.props.screenProps && this.props.screenProps.rootNavigation){
-          this.props.screenProps.rootNavigation.dispatch(resetAction);
-        }
     }else{
       //do phone verification
       this.props.navigation.navigate('SubmitNumber',{selectedContactList:this.state.selectedContactList});
@@ -208,6 +217,15 @@ class CreateGroupInvite extends Component {
 
   render() {
     if(this.props.currentUser){
+      if(this.state.creatingGroup){
+        return(
+          <View style={{flex: 1}}>
+            <Text>
+                Loading
+            </Text>
+          </View>
+        );
+      }
       return(
         <View style={{flex: 1}}>
           {(this.state.selectedContactList.length > 0)

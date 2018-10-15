@@ -7,15 +7,16 @@ const PNF = require('google-libphonenumber').PhoneNumberFormat;
 // Get an instance of `PhoneNumberUtil`.
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
-const formatMobileNumber = (defaultCountryCode, number) => {
+const formatMobileNumber = (defaultUserCountryCode, number) => {
   var numberFormat = number.replace(/\s/g, '');
-  var countryCode = defaultCountryCode;
+  var countryCode = defaultUserCountryCode;
   //check for E.164 phone number format
   if(numberFormat.substr(0,1) != '+'){
-    //use user's verified phone number country code (a safe assumption);
+    //use group owner's verified phone number country code (a safe assumption);
     //converts e.g. "06xxxxxxxx" to "+316xxxxxxxx"
-    numberFormat = "+"+defaultCountryCode+numberFormat.substr(1, numberFormat.length);
+    numberFormat = "+"+countryCode+numberFormat.substr(1, numberFormat.length);
   }else{
+    //get country code from the number
     countryCode =  phoneUtil.parse(number, 'NL').getCountryCode();
   }
 
@@ -31,7 +32,7 @@ const generateDynamicLink = (countryCode, number) => {
   return firebase.links().createShortDynamicLink(link);
 }
 
-export async function createGroup(defaultCountryCode, selectedUserMobile, selectedUserEmail){
+export async function generateCreateGroupData(defaultCountryCode, selectedUserMobile, selectedUserEmail){
   var createGroupMobileData = [];
   for(var i = 0; i<selectedUserMobile.length; i++){
     var contact = selectedUserMobile[i];
@@ -46,4 +47,5 @@ export async function createGroup(defaultCountryCode, selectedUserMobile, select
     };
   }
   console.log(createGroupMobileData);
+  return createGroupMobileData;
 }
