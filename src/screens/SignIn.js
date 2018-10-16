@@ -216,7 +216,7 @@ class SignIn extends Component {
           }
         });
       }
-    } else {
+    } else if(!confirmPasswordVisible) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
       this.setState({ 
         firstName:'',
