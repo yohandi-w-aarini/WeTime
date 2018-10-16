@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { LayoutAnimation, StyleSheet, Dimensions, Text, View, Image, TouchableOpacity } from 'react-native';
 import Meteor, { Accounts, withTracker } from 'react-native-meteor';
+import firebase from 'react-native-firebase';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 import { colors } from 'WeTime/src/config/styles';
@@ -55,6 +56,7 @@ const styles = StyleSheet.create({
   },
 });
 
+
 class SignIn extends Component {
   constructor(props) {
     super(props);
@@ -71,6 +73,7 @@ class SignIn extends Component {
       consentSubs:false,
       showSignUp: false,
       error: null,
+      defaultEmailValue: undefined,
     };
   }
 
@@ -80,15 +83,50 @@ class SignIn extends Component {
 
   componentWillUnmount() {
     this.mounted = false;
+    if(props.screenProps && props.screenProps.onLinkFromSms){
+      //calling the function to unsubscribe from future onLink event
+      props.screenProps.onLinkFromSms();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
     var user = nextProps.currentUser;
-    if(user){
+
+    var timestampOnLinkClickPrev = this.props.screenProps && this.props.screenProps.smsLinkClickTimestamp;
+    var timestampOnLinkClick = nextProps.screenProps && nextProps.screenProps.smsLinkClickTimestamp;
+    
+    //add check so it only run when needed e.g.:
+    //the fist occurense of app is opened by link or when link is clicked while the app is open
+    //link is clicked while app is open (using timestamps to differentiate each click)
+    if(user && 
+        (
+          !this.props.currentUser || 
+          !timestampOnLinkClickPrev || 
+          (timestampOnLinkClickPrev && timestampOnLinkClick && timestampOnLinkClick > timestampOnLinkClickPrev)
+        )
+      ){
+      //if user has email (verified user)
       if(user.emails && user.emails.length > 0 && user.emails[0].address){
-        this.setState({email:user.emails[0].address});
-      }else{
-        this.setState({ confirmPasswordVisible: true });
+        this.setState({ 
+          firstName:'',
+          lastName:'',
+          email:user.emails[0].address,
+          defaultEmailValue:user.emails[0].address,
+          password: '',
+          confirmPassword: '',
+          confirmPasswordVisible: false 
+        });
+      }
+      //user has no email (new user coming from sms invite)
+      else{
+        this.setState({ 
+          firstName:'',
+          lastName:'',
+          email: '',
+          defaultEmailValue:undefined,
+          password: '',
+          confirmPassword: '',
+          confirmPasswordVisible: true });
       }
     }
   }
@@ -123,6 +161,21 @@ class SignIn extends Component {
     }
 
     return valid;
+  }
+
+  signInClick(){
+    if(this.state.confirmPasswordVisible){
+      this.setState({ 
+        firstName:'',
+        lastName:'',
+        email: '',
+        defaultEmailValue:undefined,
+        password: '',
+        confirmPassword: '',
+        confirmPasswordVisible: false });
+    }else{
+      this.handleSignIn();
+    }
   }
 
   handleSignIn = () => {
@@ -165,7 +218,14 @@ class SignIn extends Component {
       }
     } else {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-      this.setState({ confirmPasswordVisible: true });
+      this.setState({ 
+        firstName:'',
+        lastName:'',
+        email: '',
+        defaultEmailValue:undefined,
+        password: '',
+        confirmPassword: '',
+        confirmPasswordVisible: true });
     }
   }
 
@@ -176,15 +236,23 @@ class SignIn extends Component {
         <View style={styles.container}>
           {user 
             ?user.emails && user.emails.length > 0 && user.emails[0].address
-              ?
-                <View style={styles.header}>
-                  <Image
-                    style={styles.logo}
-                    source={logoImage}
-                  />
-        
-                  <Text style={styles.headerText}>Welcome Back!</Text>
-                </View>
+              ?this.state.defaultEmailValue 
+                ?
+                  <View style={styles.header}>
+                    <Image
+                      style={styles.logo}
+                      source={logoImage}
+                    />
+          
+                    <Text style={styles.headerText}>Welcome Back!</Text>
+                  </View>
+                :
+                  <View style={styles.header}>
+                    <Image
+                      style={styles.logo}
+                      source={logoImage}
+                    />
+                  </View>
               :
                 <View style={styles.header}>
                   <Image
@@ -221,6 +289,7 @@ class SignIn extends Component {
             : null}
             <GenericTextInput
               placeholder="email address"
+              defaultValue={this.state.defaultEmailValue}
               onChangeText={(email) => this.setState({ email })}
               borderTop
             />
@@ -277,10 +346,9 @@ class SignIn extends Component {
           </View>
   
           <View style={styles.buttons}>
-            {/* {!user || user && !(user.emails && user.emails.length > 0 && user.emails[0].address) &&
-              <Button text="Sign In" onPress={this.handleSignIn} />
-            } */}
-            <Button text="Sign In" onPress={this.handleSignIn} />
+            {(!user || (user && user.emails && user.emails.length > 0 && user.emails[0].address)) &&
+              <Button text="Sign In" onPress={this.signInClick.bind(this)} />
+            }
             <Button text="Create Account" onPress={this.handleCreateAccount} />
           </View>
   
@@ -302,8 +370,14 @@ class SignIn extends Component {
 export default withTracker((props) => {
   var dataReady;
   var user;
-  if(props.screenProps && props.screenProps.appLaunchedByLink){
-    const url = URL.parse(props.screenProps.appLaunchedByLink);
+  if(props.screenProps && (props.screenProps.appLaunchedByLink || props.screenProps.smsLink)){
+    var url;
+    if(props.screenProps.smsLink){
+      url = URL.parse(props.screenProps.smsLink);
+    }else{
+      url = URL.parse(props.screenProps.appLaunchedByLink);
+    }
+    
     var urlParams = new URLSearchParams(url.search);
     var msisdn = urlParams.get('msisdn');
     var countryCode = urlParams.get('countryCode');

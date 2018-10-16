@@ -19,11 +19,18 @@ class App extends React.Component {
     this.state = {
       hasInternet:true,
       connected: false,
-      elapsed: 0
+      elapsed: 0,
+      smsLink:false,
+      smsLinkClickTimestamp:undefined
     };
 
     this.appLaunchedByLink;
     this.startTime = new Date();
+
+    //Subscribe to URL open events while the app is still/already running.
+    this.onLinkFromSms = firebase.links().onLink((url) => {
+      this.setState({smsLink : url, smsLinkClickTimestamp: new Date()});
+    });
   }
 
   async componentDidMount(){
@@ -123,7 +130,11 @@ class App extends React.Component {
       else if (user) {
         return <PrivateStack />;
       }else{
-        return <AuthStack screenProps={{ appLaunchedByLink: this.appLaunchedByLink }}/>;
+        return <AuthStack screenProps={{ 
+          appLaunchedByLink: this.appLaunchedByLink, 
+          smsLink: this.state.smsLink,
+          smsLinkClickTimestamp: this.state.smsLinkClickTimestamp, 
+          onLinkFromSms: this.onLinkFromSms }}/>;
       }
     }else{
       return(

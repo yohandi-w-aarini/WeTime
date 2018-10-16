@@ -46,6 +46,5 @@ export async function generateCreateGroupData(defaultCountryCode, selectedUserMo
       }
     };
   }
-  console.log(createGroupMobileData);
   return createGroupMobileData;
 }
