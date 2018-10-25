@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Dimensions, Text, View, Image, PermissionsAndroid } from 'react-native';
+import { StyleSheet, Dimensions, Text, View } from 'react-native';
 import Meteor from 'react-native-meteor';
 import { colors } from 'WeTime/src/config/styles';
 import Button from 'WeTime/src/components/Button';

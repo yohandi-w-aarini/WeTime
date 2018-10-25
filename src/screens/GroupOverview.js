@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import {name as appName} from 'WeTime/app.json';
+import { StyleSheet, Text, View, PermissionsAndroid } from 'react-native';
 import { createStackNavigator, StackActions, NavigationActions } from 'react-navigation';
 import Meteor, { withTracker } from 'react-native-meteor';
 import firebase from 'react-native-firebase';
@@ -30,6 +31,108 @@ const styles = StyleSheet.create({
 });
 
 class GroupOverview extends Component {
+  constructor(props) {
+    super(props);
+    this.mounted = false;
+    this.state = {
+      locationPermission:undefined,
+      locationLoading:false,
+      error: null,
+      initialPosition:undefined,
+      lastPosition:undefined
+    };
+  }
+
+  async componentDidMount(){
+    await this.getLocationSafe();
+  }
+
+  componentWillUnmount(){
+    if(this.watchID){
+      navigator.geolocation.clearWatch(this.watchID);
+    }
+ }
+
+  getLocation(){
+    this.setState({ locationLoading:true });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+         const initialPosition = JSON.stringify(position);
+         console.log("INITIAL POS");
+         console.log(initialPosition);
+         this.setState({ 
+          initialPosition:initialPosition,
+          locationPermission:true,
+          locationLoading:false 
+        });
+      },
+      (error) => {
+        console.log(error.message);
+        this.setState({
+          locationLoading:false 
+        });
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+   );
+    this.watchID = navigator.geolocation.watchPosition((position) => {
+        const lastPosition = JSON.stringify(position);
+        console.log("LAST POS");
+        console.log(lastPosition);
+        this.setState({ lastPosition });
+    });
+  }
+
+
+  async getLocationSafe(){
+    const permission = await this.checkLocationPermission();
+
+    if(permission){
+      this.getLocation();
+    }else if(permission === false){
+      await this.requestLocationPermission();
+    }else{
+      console.log("error with permission check");
+      this.setState({ locationPermission:false })
+    }
+  }
+
+  async requestLocationPermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          'title': `${appName} Location Permission`,
+          'message': `${appName} needs access to your location ` +
+                     'to create a better and more convenient meetings with your peers',
+          'buttonPositive': "OK"
+        }
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        this.getLocation();
+      } else {
+        this.setState({ locationPermission:false });
+      }
+    } catch (error) {
+      console.warn(error)
+    }
+  }
+
+  async checkLocationPermission() {
+    try {
+      const granted = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.warn(error)
+      return undefined;
+    }
+  }
+
   render(){
     return(
         <View style={styles.container}>
@@ -41,6 +144,11 @@ class GroupOverview extends Component {
           </Text>
           <Button text="Logout" onPress={()=>{
             Meteor.logout();
+          }}/>
+
+          <Button text="test notification" onPress={()=>{
+            var result = Meteor.call('send.push.notification');
+            console.log(result);
           }}/>
         </View>
     );

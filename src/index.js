@@ -38,6 +38,11 @@ class App extends React.Component {
 
     this.appLaunchedByLink = await firebase.links().getInitialLink();
 
+    this.onTokenRefreshListener = firebase.messaging().onTokenRefresh(fcmToken => {
+      // Process your token as required
+      this.setDeviceToken(this.props, fcmToken)
+    });
+
     if(connectionInfo){
       if(connectionInfo.type == "none"){
         this.setInternetState(false);
@@ -51,7 +56,7 @@ class App extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps){
+  async componentWillReceiveProps(nextProps){
     if(nextProps.status && nextProps.status.connected === false){
       if(!this.startTime){
         this.startTime = new Date();
@@ -59,6 +64,12 @@ class App extends React.Component {
       if(!this.timer){
         this.timer = setInterval(this.tick.bind(this), 50);
       }
+    }
+    
+    const fcmToken = await firebase.messaging().getToken();
+    if (fcmToken) {
+      // user has a device token
+      this.setDeviceToken(nextProps, fcmToken)
     }
   }
 
@@ -72,6 +83,25 @@ class App extends React.Component {
       'connectionChange',
       this.handleConnectivityChange.bind(this)
     );
+    
+    if(this.onTokenRefreshListener){
+      this.onTokenRefreshListener();
+    }
+  }
+
+  setDeviceToken(props, fcmToken){
+    if(props.status && props.status.connected && props.user){
+      var user = props.user;
+      //user profile doesn't have a device token or device token is not the same
+      if(!(user.devices && user.devices[0].deviceToken)||(user.devices && user.devices[0].deviceToken && user.devices[0].deviceToken != fcmToken)){
+        //set/update deviceToken in user database
+        Meteor.call('update.deviceToken',fcmToken, (error, response)=>{
+          if(error){
+            console.log(error);
+          }
+        });
+      }
+    }
   }
 
   setInternetState(state){
