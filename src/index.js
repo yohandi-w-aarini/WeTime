@@ -43,6 +43,58 @@ class App extends React.Component {
       this.setDeviceToken(this.props, fcmToken)
     });
 
+    this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
+      console.log("NOTIFICATION OPEN");
+      console.log(notificationOpen);
+        // // Get the action triggered by the notification being opened
+        // const action = notificationOpen.action;
+        // // Get information about the notification that was opened
+        // const notification: Notification = notificationOpen.notification;
+    });
+
+    this.messageListener = firebase.notifications().onNotification((nextOrObserver) => {
+      // Process your message as required
+      console.log("NOTIFICATION RECEIVED (while app is in foreground)");
+      if(nextOrObserver && nextOrObserver._data){
+        console.log(nextOrObserver);
+
+        // Build a channel group for notification
+        const channelGroup = new firebase.notifications.Android.ChannelGroup('weTime-calls', 'Call of WeTime(s)');
+
+        // Create the channel group
+        firebase.notifications().android.createChannelGroup(channelGroup);
+
+        // Build a channel
+        const channel = new firebase.notifications.Android.Channel('weTime-call-channel', 'WeTime Call Channel', firebase.notifications.Android.Importance.Max)
+        .setGroup('wetime-calls')
+        .setDescription('My WeTime call channel');
+
+        // Create the channel
+        firebase.notifications().android.createChannel(channel);
+
+        //build notification
+        const notification = new firebase.notifications.Notification()
+        .setNotificationId(nextOrObserver._notificationId)
+        .setTitle(nextOrObserver._data.title)
+        .setBody(nextOrObserver._data.body)
+        .setData(nextOrObserver._data);
+
+        //set property that will make android show this notification as "heads up notification"
+        notification
+        .android.setChannelId('channelId')
+        .android.setSmallIcon('ic_launcher')
+        .android.setDefaults(firebase.notifications.Android.Defaults.All)
+        .android.setPriority(firebase.notifications.Android.Priority.High);
+
+        console.log("NEW PRIORITY NOTIFICATION");
+        console.log(notification);
+
+        // Display the notification
+        firebase.notifications().displayNotification(notification);
+      }
+
+    });
+
     if(connectionInfo){
       if(connectionInfo.type == "none"){
         this.setInternetState(false);
@@ -86,6 +138,10 @@ class App extends React.Component {
     
     if(this.onTokenRefreshListener){
       this.onTokenRefreshListener();
+    }
+
+    if(this.notificationOpenedListener){
+      this.notificationOpenedListener();
     }
   }
 
