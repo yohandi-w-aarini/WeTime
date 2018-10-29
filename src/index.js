@@ -86,6 +86,13 @@ class App extends React.Component {
         .android.setDefaults(firebase.notifications.Android.Defaults.All)
         .android.setPriority(firebase.notifications.Android.Priority.High);
 
+        // Build an action
+        const action = new firebase.notifications.Android.Action('action_positive', 'ic_launcher', 'Yes, Please');
+        const action2 = new firebase.notifications.Android.Action('action_negative', 'ic_launcher', 'No thanks');
+        // Add the action to the notification
+        notification.android.addAction(action);
+        notification.android.addAction(action2);
+
         console.log("NEW PRIORITY NOTIFICATION");
         console.log(notification);
 
