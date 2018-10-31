@@ -9,6 +9,7 @@ import Loading from 'WeTime/src/components/Loading';
 import NoInternet from 'WeTime/src/components/NoInternet';
 import settings from 'WeTime/src/config/settings';
 import ServerUnreachable from 'WeTime/src/components/ServerUnreachable';
+import NotificationHandler from './screens/NotificationHandler';
 
 Meteor.connect(settings.METEOR_URL);
 
@@ -21,10 +22,10 @@ class App extends React.Component {
       connected: false,
       elapsed: 0,
       smsLink:false,
-      smsLinkClickTimestamp:undefined
+      smsLinkClickTimestamp:undefined,
+      handleNotification:undefined
     };
 
-    this.appLaunchedByLink;
     this.startTime = new Date();
 
     //Subscribe to URL open events while the app is still/already running.
@@ -43,16 +44,24 @@ class App extends React.Component {
       this.setDeviceToken(this.props, fcmToken)
     });
 
-    this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
+    this.appLaunchedByNotification = await firebase.notifications().getInitialNotification();
+    console.log("LAUNCHED by NOTIFICATION");
+    console.log(this.appLaunchedByNotification);
+
+    if(this.appLaunchedByNotification){
+      this.setState({handleNotification: this.appLaunchedByNotification});
+      await firebase.notifications().cancelNotification(notificationOpen.notification._notificationId);
+      this.appLaunchedByNotification = undefined;
+    }
+
+    this.notificationOpenedListener = firebase.notifications().onNotificationOpened(async (notificationOpen) => {
       console.log("NOTIFICATION OPEN");
       console.log(notificationOpen);
-        // // Get the action triggered by the notification being opened
-        // const action = notificationOpen.action;
-        // // Get information about the notification that was opened
-        // const notification: Notification = notificationOpen.notification;
+      this.setState({handleNotification: notificationOpen});
+      await firebase.notifications().cancelNotification(notificationOpen.notification._notificationId);
     });
 
-    this.messageListener = firebase.notifications().onNotification((nextOrObserver) => {
+    this.notificationListener = firebase.notifications().onNotification((nextOrObserver) => {
       // Process your message as required
       console.log("NOTIFICATION RECEIVED (while app is in foreground)");
       if(nextOrObserver && nextOrObserver._data){
@@ -150,6 +159,10 @@ class App extends React.Component {
     if(this.notificationOpenedListener){
       this.notificationOpenedListener();
     }
+
+    if(this.notificationListener){
+      this.notificationListener();
+    }
   }
 
   setDeviceToken(props, fcmToken){
@@ -221,7 +234,11 @@ class App extends React.Component {
       }
       //load the appropriate routes based on user's login status
       else if (user) {
-        return <PrivateStack />;
+        if(this.state.handleNotification){
+          return <NotificationHandler notification={this.state.notification}/>;
+        }else{
+          return <PrivateStack />;
+        }
       }else{
         return <AuthStack screenProps={{ 
           appLaunchedByLink: this.appLaunchedByLink, 
